@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/missionweaveprotocol/missionweaveprotocol",
+  "commit": "00964ea9064cbf1f0eca8af21a0c57367ee14752",
+  "protocolVersion": "0.1",
+  "wireNamespace": "missionweaveprotocol",
+  "artifacts": {
+    "schemas": {
+      "path": "schemas",
+      "files": 21,
+      "sha256": "cbb37b7d55ad1a21a01370d6c09677b05dcd1383d6d77fa60b9c58b0fd85c624"
+    },
+    "conformance": {
+      "path": "conformance",
+      "files": 44,
+      "sha256": "100d2d2104d07bd7dcfbde354555a85d244f4b7c20c1c5dda0136ce36b4b8675"
+    }
+  },
+  "bundleSha256": "281fb1ec9b73e07f7a2897e576dbbad021085cf7293c1e9450ba3fbdec7f2cda"
+}

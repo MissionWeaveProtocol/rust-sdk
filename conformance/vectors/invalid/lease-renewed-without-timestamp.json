@@ -1,0 +1,15 @@
+{
+  "leaseId": "urn:missionweaveprotocol:lease:execution-two",
+  "leaseType": "execution",
+  "missionId": "urn:missionweaveprotocol:mission:one",
+  "groupId": "urn:missionweaveprotocol:group:mission-one",
+  "workItemId": "urn:missionweaveprotocol:work-item:implementation",
+  "holderAgentId": "urn:missionweaveprotocol:agent:developer-one",
+  "sessionEpoch": 7,
+  "ownershipEpoch": 2,
+  "issuedAt": "2026-07-15T00:30:00Z",
+  "startsAt": "2026-07-15T00:30:00Z",
+  "expiresAt": "2026-07-15T00:45:00Z",
+  "state": "active",
+  "renewalCount": 1
+}

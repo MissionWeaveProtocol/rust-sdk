@@ -1,0 +1,7 @@
+{
+  "groupId": "urn:missionweaveprotocol:group:mission-one",
+  "missionId": "urn:missionweaveprotocol:mission:one",
+  "state": "active",
+  "mainConversationId": "urn:missionweaveprotocol:conversation:mission-one",
+  "createdAt": "2026-07-15T01:00:00Z"
+}

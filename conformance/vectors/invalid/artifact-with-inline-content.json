@@ -1,0 +1,28 @@
+{
+  "artifactId": "urn:missionweaveprotocol:artifact:implementation-patch",
+  "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "uri": "https://artifacts.acme.example/sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sizeBytes": 4,
+  "mediaType": "text/plain",
+  "schemaUri": "urn:missionweaveprotocol:schema:opaque",
+  "producer": {
+    "agentId": "urn:missionweaveprotocol:agent:developer-one",
+    "agentCardVersion": 3,
+    "capabilities": [{"id": "acme.software.python-implementation", "version": "2.1.0"}]
+  },
+  "missionId": "urn:missionweaveprotocol:mission:one",
+  "groupId": "urn:missionweaveprotocol:group:mission-one",
+  "workItemId": "urn:missionweaveprotocol:work-item:implementation",
+  "sourceArtifactHashes": [],
+  "toolVersions": [],
+  "modelVersions": [],
+  "classification": "internal",
+  "createdAt": "2026-07-15T03:00:00Z",
+  "inlineContent": "data",
+  "signature": {
+    "algorithm": "Ed25519",
+    "keyId": "urn:missionweaveprotocol:key:developer-one",
+    "createdAt": "2026-07-15T03:00:00Z",
+    "value": "c2lnbmF0dXJl"
+  }
+}

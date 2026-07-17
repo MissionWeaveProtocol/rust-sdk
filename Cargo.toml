@@ -10,7 +10,21 @@ repository = "https://github.com/missionweaveprotocol/rust-sdk"
 homepage = "https://missionweaveprotocol.github.io/"
 keywords = ["agents", "protocol", "sdk", "missionweaveprotocol"]
 categories = ["api-bindings", "data-structures"]
-include = ["src/**", "README.md", "LICENSE"]
+include = [
+  "src/**",
+  "schemas/**",
+  "conformance/**",
+  "PROTOCOL_PIN.json",
+  "README.md",
+  "LICENSE",
+]
+
+[dependencies]
+include_dir = "0.7.4"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+sha2 = "0.10.9"
+thiserror = "2.0.12"
 
 [lib]
 name = "missionweaveprotocol"
