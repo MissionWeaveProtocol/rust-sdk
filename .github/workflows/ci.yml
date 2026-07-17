@@ -33,10 +33,18 @@ jobs:
         run: cargo fmt --all --check
 
       - name: Lint
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
 
       - name: Test
-        run: cargo test --all-features
+        run: cargo test --locked --all-features
+
+      - name: Run conformance suite
+        run: cargo run --locked --quiet --bin missionweaveprotocol-conformance
 
       - name: Package
-        run: cargo package
+        run: cargo package --locked
+
+      - name: Verify installed CLI
+        run: |
+          cargo install --locked --path . --root "${RUNNER_TEMP}/missionweaveprotocol-rust"
+          "${RUNNER_TEMP}/missionweaveprotocol-rust/bin/missionweaveprotocol-conformance"
