@@ -10,9 +10,9 @@ Es bietet striktes JSON-Parsing, das exakt gepinnte Protokoll-Bundle, Offline-Va
 Draft 2020-12, den vollständigen Schema-Konformitätsrunner, kanonisches JSON nach RFC 8785,
 SHA-256-Inhalts-IDs, Ed25519-Helfer und einen schema-validierenden FrameCodec.
 
-> Die aktuelle Version weist **schema-and-vector conformance** nach. Sie beansprucht noch nicht,
-> den autoritativen Core, die Worker Runtime, den Scheduler, Storage oder den WebSocket Client der
-> Python-Referenzimplementierung umzusetzen.
+> Die aktuelle Version weist ausschließlich **Schema- und Vektorkonformität** nach. Sie beansprucht
+> noch nicht, den autoritativen Core, die Worker Runtime, den Scheduler, Storage oder den WebSocket
+> Client der Python-Referenzimplementierung umzusetzen.
 
 - Website: <https://missionweaveprotocol.github.io/>
 - Protokoll: <https://github.com/missionweaveprotocol/missionweaveprotocol>
@@ -69,3 +69,9 @@ cargo package --locked
 ```
 
 Rust 1.85 oder neuer ist erforderlich. Schemas und Vektoren sind für Offline-Nutzung eingebettet.
+
+## Sicherheit
+
+Melde Schwachstellen vertraulich über GitHub Security Advisories für dieses Repository.
+Veröffentliche keine Produktionszugangsdaten, privaten Schlüssel oder sensiblen Mission-Daten in
+öffentlichen Issues.
