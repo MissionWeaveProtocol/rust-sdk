@@ -35,7 +35,7 @@ Antes de una publicación en crates.io, usa el repositorio directamente:
 
 ```toml
 [dependencies]
-missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", tag = "v0.1.0" }
+missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
 ```rust

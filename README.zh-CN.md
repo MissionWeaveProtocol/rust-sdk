@@ -33,7 +33,7 @@ SDK 与协议独立版本化。
 
 ```toml
 [dependencies]
-missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", tag = "v0.1.0" }
+missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
 ```rust
