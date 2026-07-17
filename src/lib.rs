@@ -1,5 +1,9 @@
 //! Official Rust SDK for `MissionWeaveProtocol`.
 
+mod bundle;
+
+pub use bundle::{BundleError, BundleSummary, ProtocolBundle, ProtocolPin};
+
 /// SDK package version.
 pub const SDK_VERSION: &str = env!("CARGO_PKG_VERSION");
 
