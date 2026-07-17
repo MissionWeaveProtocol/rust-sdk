@@ -1,21 +1,123 @@
+**English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) |
+[日本語](README.ja.md) | [Español](README.es.md) | [Français](README.fr.md) |
+[Deutsch](README.de.md)
+
 # MissionWeaveProtocol Rust SDK
 
-The official Rust SDK for
+The official Rust protocol SDK for
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
+It provides strict JSON parsing, the exact pinned protocol bundle, offline Draft 2020-12
+validation, the complete schema conformance runner, RFC 8785 canonical JSON, SHA-256 content IDs,
+Ed25519 helpers, and a schema-validating frame codec.
 
-This repository is under active development. Its first release will provide offline protocol
-bundle verification, Draft 2020-12 schema validation, conformance vectors, canonical JSON,
-Ed25519 primitives, and schema-validating frame codecs.
+> The current release demonstrates **schema-and-vector conformance**. It does not yet claim the
+> authoritative Core, Worker runtime, Scheduler, storage, or WebSocket client behavior implemented
+> by the Python reference implementation.
 
 - Website: <https://missionweaveprotocol.github.io/>
 - Protocol: <https://github.com/missionweaveprotocol/missionweaveprotocol>
+- Repository: <https://github.com/missionweaveprotocol/rust-sdk>
 - License: Apache-2.0
 
-## Development
+## Compatibility
+
+| Rust SDK | MissionWeaveProtocol |
+| --- | --- |
+| `0.1.x` | `0.1` |
+
+[`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) binds this SDK to protocol commit
+`00964ea9064cbf1f0eca8af21a0c57367ee14752`, 21 schemas, and 43 conformance vectors. SDK and
+protocol releases are versioned independently.
+
+## Use the crate
+
+Until a crates.io release is published, depend on the repository:
+
+```toml
+[dependencies]
+missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", tag = "v0.1.0" }
+```
+
+Validate and canonically encode a WebSocket frame:
+
+```rust
+use missionweaveprotocol::FrameCodec;
+
+let codec = FrameCodec::new()?;
+let frame = codec.decode(input.as_bytes())?;
+let canonical = codec.encode(&frame)?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Validate another durable document:
+
+```rust
+use missionweaveprotocol::{SchemaCatalog, parse_strict_json};
+
+let catalog = SchemaCatalog::new()?;
+let mission = parse_strict_json(mission_bytes)?;
+catalog.validate("mission.schema.json", &mission)?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Create and verify an Ed25519 protocol signature:
+
+```rust
+use missionweaveprotocol::Ed25519Signer;
+
+let signer = Ed25519Signer::from_seed(seed);
+let signed = signer.sign_document(
+    &document,
+    "urn:missionweaveprotocol:key:example",
+    "2026-07-17T00:00:00Z",
+)?;
+Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+## Run schema conformance
 
 ```bash
-cargo fmt --all --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --all-features
-cargo package
+cargo run --locked --bin missionweaveprotocol-conformance
 ```
+
+Expected result:
+
+```text
+43/43 conformance vectors passed
+```
+
+The 43 vectors prove structural schema behavior only. Full protocol conformance also requires the
+normative state machines, authority checks, fencing, budgets, ordering, replay, delivery recovery,
+and human approval rules.
+
+## Public surface
+
+- `ProtocolBundle`: embedded pin, schema/vector resources, and byte-exact digest verification.
+- `parse_strict_json`: UTF-8 parsing that rejects duplicate members and trailing data.
+- `SchemaCatalog`: offline Draft 2020-12 `$id` registry with format assertions.
+- `ConformanceRunner`: all 22 valid and 21 invalid canonical vectors.
+- `canonical_bytes` / `canonical_sha256`: RFC 8785 and `sha256:` content IDs.
+- `Ed25519Signer`: raw signatures and top-level `signature` omission rules.
+- `FrameCodec`: strict decode and canonical encode around the normative frame schema.
+
+## Develop and verify
+
+Rust 1.85 or newer is required.
+
+```bash
+node scripts/check-repository-policy.mjs
+cargo fmt --all --check
+cargo clippy --locked --all-targets --all-features -- -D warnings
+cargo test --locked --all-features
+cargo run --locked --quiet --bin missionweaveprotocol-conformance
+cargo package --locked
+```
+
+The crate includes the pinned schemas and conformance vectors, so validation and the CLI work
+without network access at runtime.
+
+## Security
+
+Report vulnerabilities privately through GitHub Security Advisories for this repository. Do not
+include production credentials, private keys, or sensitive Mission data in public issues.
