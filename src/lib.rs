@@ -1,8 +1,20 @@
 //! Official Rust SDK for `MissionWeaveProtocol`.
 
 mod bundle;
+mod canonical;
+mod conformance;
+mod frame;
+mod schema;
+mod strict_json;
 
 pub use bundle::{BundleError, BundleSummary, ProtocolBundle, ProtocolPin};
+pub use canonical::{
+    CanonicalError, Ed25519Signer, canonical_bytes, canonical_sha256, signature_input,
+};
+pub use conformance::{ConformanceReport, ConformanceRunner, VectorResult};
+pub use frame::{FrameCodec, FrameError};
+pub use schema::{SchemaCatalog, SchemaError};
+pub use strict_json::{StrictJsonError, parse_strict_json};
 
 /// SDK package version.
 pub const SDK_VERSION: &str = env!("CARGO_PKG_VERSION");

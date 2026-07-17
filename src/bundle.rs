@@ -139,6 +139,22 @@ impl ProtocolBundle {
         SCHEMAS.get_file(Path::new(name)).map(File::contents)
     }
 
+    /// List every embedded normative schema file name in lexical order.
+    #[must_use]
+    pub fn schema_names() -> Vec<String> {
+        let mut names = SCHEMAS
+            .files()
+            .filter(|file| {
+                file.path()
+                    .extension()
+                    .is_some_and(|extension| extension == "json")
+            })
+            .map(|file| file.path().to_string_lossy().into_owned())
+            .collect::<Vec<_>>();
+        names.sort();
+        names
+    }
+
     /// Read one embedded conformance artifact by its path below `conformance/`.
     #[must_use]
     pub fn conformance(path: &str) -> Option<&'static [u8]> {
