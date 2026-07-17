@@ -1,0 +1,24 @@
+[package]
+name = "missionweaveprotocol"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Official Rust SDK for MissionWeaveProtocol"
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/missionweaveprotocol/rust-sdk"
+homepage = "https://missionweaveprotocol.github.io/"
+keywords = ["agents", "protocol", "sdk", "missionweaveprotocol"]
+categories = ["api-bindings", "data-structures"]
+include = ["src/**", "README.md", "LICENSE"]
+
+[lib]
+name = "missionweaveprotocol"
+path = "src/lib.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
