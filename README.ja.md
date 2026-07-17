@@ -34,7 +34,7 @@ crates.io 公開前はリポジトリを直接参照できます。
 
 ```toml
 [dependencies]
-missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", tag = "v0.1.0" }
+missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
 ```rust
