@@ -36,6 +36,8 @@ SDK 与协议独立版本化。
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
+验证并规范编码 WebSocket 帧：
+
 ```rust
 use missionweaveprotocol::FrameCodec;
 
@@ -45,30 +47,73 @@ let canonical = codec.encode(&frame)?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-公开接口包括：
+验证另一个持久化文档：
 
-- `ProtocolBundle`：嵌入的 pin、schema/vector 资源与逐字节 digest 校验；
-- `parse_strict_json`：拒绝重复成员和尾随数据的 UTF-8 JSON 解析；
-- `SchemaCatalog`：启用 format assertion 的离线 Draft 2020-12 `$id` registry；
-- `ConformanceRunner`：25 个 valid 与 27 个 invalid 规范 vector；
-- `canonical_bytes`、`canonical_sha256` 与 `Ed25519Signer`；
-- `FrameCodec`：规范 frame schema 之上的严格 decode 与 canonical encode。
+```rust
+use missionweaveprotocol::{SchemaCatalog, parse_strict_json};
 
-## 一致性与开发
+let catalog = SchemaCatalog::new()?;
+let mission = parse_strict_json(mission_bytes)?;
+catalog.validate("mission.schema.json", &mission)?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+创建并验证 Ed25519 协议签名：
+
+```rust
+use missionweaveprotocol::Ed25519Signer;
+
+let signer = Ed25519Signer::from_seed(seed);
+let signed = signer.sign_document(
+    &document,
+    "urn:missionweaveprotocol:key:example",
+    "2026-07-17T00:00:00Z",
+)?;
+Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+## 运行 Schema 符合性检查
 
 ```bash
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-预期输出为 `52/52 conformance vectors passed`。这些 vector 只证明结构化 schema 行为；
-完整协议一致性还要求状态机、权限、fencing、预算、排序、replay、恢复和人类批准规则。
+预期结果：
+
+```text
+52/52 conformance vectors passed
+```
+
+这 52 个向量仅证明结构化 Schema 行为。完整协议符合性还要求实现规范状态机、权限检查、
+fencing、预算、排序、replay、交付恢复和人工批准规则。
+
+## 公共接口
+
+- `ProtocolBundle`：内嵌的 pin、Schema/向量资源与逐字节摘要验证。
+- `parse_strict_json`：拒绝重复成员和尾随数据的 UTF-8 解析。
+- `SchemaCatalog`：启用格式断言的离线 Draft 2020-12 `$id` 注册表。
+- `ConformanceRunner`：全部 25 个有效和 27 个无效规范向量。
+- `canonical_bytes` / `canonical_sha256`：RFC 8785 与 `sha256:` 内容 ID。
+- `Ed25519Signer`：原始签名和顶层 `signature` 省略规则。
+- `FrameCodec`：围绕规范帧 Schema 的严格解码与规范编码。
+
+## 开发与验证
+
+需要 Rust 1.85 或更高版本。
 
 ```bash
 node scripts/check-repository-policy.mjs
 cargo fmt --all --check
 cargo clippy --locked --all-targets --all-features -- -D warnings
 cargo test --locked --all-features
+cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-需要 Rust 1.85 或更高版本。schema 与 vector 已打包，因此运行时离线可用。
+crate 包含固定的 Schema 和符合性向量，因此验证和 CLI 在运行时无需网络访问。
+
+## 安全
+
+请通过本仓库的 GitHub Security Advisories 私下报告漏洞。请勿在公开 issue 中包含生产环境
+凭据、私钥或敏感 Mission 数据。

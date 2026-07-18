@@ -37,6 +37,8 @@ crates.io 公開前はリポジトリを直接参照できます。
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
+WebSocket frame を検証し、正規形式でエンコードします。
+
 ```rust
 use missionweaveprotocol::FrameCodec;
 
@@ -46,26 +48,75 @@ let canonical = codec.encode(&frame)?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-主な公開 API は `ProtocolBundle`、`parse_strict_json`、`SchemaCatalog`、
-`ConformanceRunner`、`canonical_bytes`、`canonical_sha256`、`Ed25519Signer`、
-`FrameCodec` です。
+別の永続ドキュメントを検証します。
 
-## Conformance と開発
+```rust
+use missionweaveprotocol::{SchemaCatalog, parse_strict_json};
+
+let catalog = SchemaCatalog::new()?;
+let mission = parse_strict_json(mission_bytes)?;
+catalog.validate("mission.schema.json", &mission)?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Ed25519 プロトコル署名を作成し、検証します。
+
+```rust
+use missionweaveprotocol::Ed25519Signer;
+
+let signer = Ed25519Signer::from_seed(seed);
+let signed = signer.sign_document(
+    &document,
+    "urn:missionweaveprotocol:key:example",
+    "2026-07-17T00:00:00Z",
+)?;
+Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+## Schema conformance の実行
 
 ```bash
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-期待される結果は `52/52 conformance vectors passed` です。完全なプロトコル適合には、
-state machine、authority、fencing、budget、ordering、replay、recovery、人間の Approval
-も必要です。
+期待される結果：
+
+```text
+52/52 conformance vectors passed
+```
+
+52 個の vector が証明するのは構造的な Schema の動作だけです。完全なプロトコル適合には、
+規範的な state machine、authority check、fencing、budget、ordering、replay、delivery
+recovery、人間による Approval も必要です。
+
+## 公開 API
+
+- `ProtocolBundle`：埋め込み pin、Schema/vector リソース、バイト単位で正確な digest 検証。
+- `parse_strict_json`：重複 member と trailing data を拒否する UTF-8 解析。
+- `SchemaCatalog`：format assertion を有効にしたオフライン Draft 2020-12 `$id` registry。
+- `ConformanceRunner`：25 個の valid vector と 27 個の invalid vector すべて。
+- `canonical_bytes` / `canonical_sha256`：RFC 8785 と `sha256:` content ID。
+- `Ed25519Signer`：raw signature と top-level の `signature` 省略規則。
+- `FrameCodec`：規範的な frame Schema に対する strict decode と canonical encode。
+
+## 開発と検証
+
+Rust 1.85 以降が必要です。
 
 ```bash
 node scripts/check-repository-policy.mjs
 cargo fmt --all --check
 cargo clippy --locked --all-targets --all-features -- -D warnings
 cargo test --locked --all-features
+cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-Rust 1.85 以降が必要です。schema と vector は crate に含まれ、runtime ではオフラインです。
+crate には固定された Schema と conformance vector が含まれるため、検証と CLI は runtime
+でネットワークアクセスを必要としません。
+
+## セキュリティ
+
+脆弱性は、このリポジトリの GitHub Security Advisories を通じて非公開で報告してください。
+本番環境の認証情報、秘密鍵、機密性の高い Mission data を公開 issue に含めないでください。

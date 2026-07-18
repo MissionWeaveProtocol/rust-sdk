@@ -38,6 +38,8 @@ Avant une publication sur crates.io, référencez directement le dépôt :
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
+Validez et encodez canoniquement une trame WebSocket :
+
 ```rust
 use missionweaveprotocol::FrameCodec;
 
@@ -47,28 +49,75 @@ let canonical = codec.encode(&frame)?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-L’interface publique comprend `ProtocolBundle`, `parse_strict_json`, `SchemaCatalog`,
-`ConformanceRunner`, `canonical_bytes`, `canonical_sha256`, `Ed25519Signer` et `FrameCodec`.
+Validez un autre document durable :
 
-## Conformité et développement
+```rust
+use missionweaveprotocol::{SchemaCatalog, parse_strict_json};
+
+let catalog = SchemaCatalog::new()?;
+let mission = parse_strict_json(mission_bytes)?;
+catalog.validate("mission.schema.json", &mission)?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Créez et vérifiez une signature de protocole Ed25519 :
+
+```rust
+use missionweaveprotocol::Ed25519Signer;
+
+let signer = Ed25519Signer::from_seed(seed);
+let signed = signer.sign_document(
+    &document,
+    "urn:missionweaveprotocol:key:example",
+    "2026-07-17T00:00:00Z",
+)?;
+Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+## Exécuter la conformité des schémas
 
 ```bash
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-Le résultat attendu est `52/52 conformance vectors passed`. La conformité complète exige aussi
-les machines d’état, l’autorité, le fencing, les budgets, l’ordre, le replay, la reprise et
-l’Approval humaine.
+Résultat attendu :
+
+```text
+52/52 conformance vectors passed
+```
+
+Les 52 vecteurs prouvent uniquement le comportement structurel des schémas. La conformité complète
+au protocole exige aussi les machines d’état normatives, les contrôles d’autorité, le fencing, les
+budgets, l’ordre, le replay, la reprise des livraisons et les règles d’approbation humaine.
+
+## Interface publique
+
+- `ProtocolBundle` : pin intégré, ressources de schémas et de vecteurs, et vérification exacte des
+  empreintes, octet par octet.
+- `parse_strict_json` : analyse UTF-8 qui rejette les membres dupliqués et les données
+  supplémentaires en fin d’entrée.
+- `SchemaCatalog` : registre `$id` Draft 2020-12 hors ligne avec assertions de format.
+- `ConformanceRunner` : les 25 vecteurs valides et 27 invalides canoniques.
+- `canonical_bytes` / `canonical_sha256` : RFC 8785 et identifiants de contenu `sha256:`.
+- `Ed25519Signer` : signatures brutes et règles d’omission de `signature` au premier niveau.
+- `FrameCodec` : décodage strict et encodage canonique autour du schéma normatif des trames.
+
+## Développer et vérifier
+
+Rust 1.85 ou ultérieur est requis.
 
 ```bash
 node scripts/check-repository-policy.mjs
 cargo fmt --all --check
 cargo clippy --locked --all-targets --all-features -- -D warnings
 cargo test --locked --all-features
+cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-Rust 1.85 ou ultérieur est requis. Les schemas et vecteurs sont embarqués pour un usage hors ligne.
+Le crate contient les schémas et vecteurs de conformité épinglés ; la validation et la CLI
+fonctionnent donc sans accès réseau au runtime.
 
 ## Sécurité
 
