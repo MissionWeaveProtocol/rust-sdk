@@ -26,7 +26,7 @@ les identifiants SHA-256, les outils Ed25519 et un FrameCodec validant les schem
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) lie le SDK au commit
-`00964ea9064cbf1f0eca8af21a0c57367ee14752`, aux 21 schemas et aux 43 vecteurs de conformité. Les
+`6f10987627d62fb296e3490ceceb5539b1e94b70`, aux 21 schemas et aux 52 vecteurs de conformité. Les
 versions du SDK et du protocole sont indépendantes.
 
 ## Utilisation
@@ -56,7 +56,7 @@ L’interface publique comprend `ProtocolBundle`, `parse_strict_json`, `SchemaCa
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-Le résultat attendu est `43/43 conformance vectors passed`. La conformité complète exige aussi
+Le résultat attendu est `52/52 conformance vectors passed`. La conformité complète exige aussi
 les machines d’état, l’autorité, le fencing, les budgets, l’ordre, le replay, la reprise et
 l’Approval humaine.
 

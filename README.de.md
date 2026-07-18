@@ -26,7 +26,7 @@ SHA-256-Inhalts-IDs, Ed25519-Helfer und einen schema-validierenden FrameCodec.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) bindet das SDK an Commit
-`00964ea9064cbf1f0eca8af21a0c57367ee14752`, 21 Schemas und 43 Konformitätsvektoren. SDK und
+`6f10987627d62fb296e3490ceceb5539b1e94b70`, 21 Schemas und 52 Konformitätsvektoren. SDK und
 Protokoll werden unabhängig versioniert.
 
 ## Verwendung
@@ -56,7 +56,7 @@ Die öffentliche API umfasst `ProtocolBundle`, `parse_strict_json`, `SchemaCatal
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-Das erwartete Ergebnis ist `43/43 conformance vectors passed`. Vollständige Konformität erfordert
+Das erwartete Ergebnis ist `52/52 conformance vectors passed`. Vollständige Konformität erfordert
 zusätzlich Zustandsautomaten, Autorität, Fencing, Budgets, Reihenfolge, Replay, Wiederherstellung
 und menschliche Approval.
 

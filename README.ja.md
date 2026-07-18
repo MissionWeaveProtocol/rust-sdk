@@ -25,7 +25,7 @@ JSON、SHA-256 content ID、Ed25519 ヘルパー、schema-validating FrameCodec 
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) は protocol commit
-`00964ea9064cbf1f0eca8af21a0c57367ee14752`、21 schema、43 vector に SDK を固定します。
+`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 schema、52 vector に SDK を固定します。
 SDK とプロトコルは別々に versioning されます。
 
 ## 利用
@@ -56,7 +56,7 @@ let canonical = codec.encode(&frame)?;
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-期待される結果は `43/43 conformance vectors passed` です。完全なプロトコル適合には、
+期待される結果は `52/52 conformance vectors passed` です。完全なプロトコル適合には、
 state machine、authority、fencing、budget、ordering、replay、recovery、人間の Approval
 も必要です。
 
