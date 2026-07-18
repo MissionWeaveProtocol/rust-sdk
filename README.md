@@ -8,9 +8,10 @@ The official Rust protocol SDK for
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
 It provides strict JSON parsing, the exact pinned protocol bundle, offline Draft 2020-12
 validation, the complete schema conformance runner, RFC 8785 canonical JSON, SHA-256 content IDs,
-Ed25519 helpers, and a schema-validating frame codec.
+Ed25519 helpers, the nine-profile `SignedDocumentCodec`, and a schema-validating frame codec.
 
-> The current release demonstrates **schema-and-vector conformance**. It does not yet claim the
+> The current release demonstrates **schema and signed-document cryptography vector conformance**.
+> It does not yet claim the
 > authoritative Core, Worker runtime, Scheduler, storage, or WebSocket client behavior implemented
 > by the Python reference implementation.
 
@@ -75,6 +76,42 @@ Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
+Sign and verify a schema-required durable document through the normative six-stage profile:
+
+```rust
+use missionweaveprotocol::{
+    KeyRegistrySnapshot, KeyResolutionRequest, KeyResolver, SignedDocumentCodec,
+    SignedDocumentKind,
+};
+
+impl KeyResolver for RegistryResolver {
+    fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
+        let complete_registry = self.load_complete_agent_registry(request)?;
+        Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
+    }
+}
+
+let codec = SignedDocumentCodec::new()?;
+let signed = codec.sign(SignedDocumentKind::Command, &unsigned_command, &signing_key)?;
+let received = serde_json::to_vec(&signed)?;
+match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
+    Ok(verified) => println!("{}", verified.signing_hash()),
+    Err(error) => {
+        send_to_peer(error.wire_code()); // non-oracular
+        audit_locally(error.diagnostic()); // protected stage and reason
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+The kind is always explicit; the codec never infers one of the nine profiles. `SigningKey` and
+`KeyResolver` are the only application adapters. A resolver must return a snapshot explicitly
+asserted as `OrganizationWide`; partial or unspecified evidence fails closed at key resolution.
+The verified result immutably retains the parsed and received document, signing and complete JCS
+bytes/hashes, exact and parsed protected time, signature material, and resolved Agent Registry evidence.
+The First-Admission Record, freshness, and authorization remain separate checks. See the runnable
+[`sign_document` example](examples/sign_document.rs).
+
 ## Run schema conformance
 
 ```bash
@@ -99,6 +136,10 @@ and human approval rules.
 - `ConformanceRunner`: all 25 valid and 27 invalid canonical vectors.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 and `sha256:` content IDs.
 - `Ed25519Signer`: raw signatures and top-level `signature` omission rules.
+- `SignedDocumentCodec`: explicit nine-profile signing and six-stage verification with complete
+  immutable evidence and non-oracular wire errors.
+- `SigningKey` / `KeyResolver`: the only application adapters; key resolution requires an
+  Organization-wide `KeyRegistrySnapshot`.
 - `FrameCodec`: strict decode and canonical encode around the normative frame schema.
 
 ## Develop and verify

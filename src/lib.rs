@@ -5,6 +5,7 @@ mod canonical;
 mod conformance;
 mod frame;
 mod schema;
+mod signed_document;
 mod strict_json;
 
 pub use bundle::{
@@ -17,6 +18,13 @@ pub use canonical::{
 pub use conformance::{ConformanceReport, ConformanceRunner, VectorResult};
 pub use frame::{FrameCodec, FrameError};
 pub use schema::{SchemaCatalog, SchemaError};
+pub use signed_document::{
+    AdapterError, KeyRegistryCompleteness, KeyRegistrySnapshot, KeyResolutionRequest, KeyResolver,
+    KeySignerExpectation, Principal, PrincipalKind, ResolvedKeyEvidence, Rfc3339Instant,
+    SignatureEvidence, SignedDocumentCodec, SignedDocumentKind, SigningError, SigningKey,
+    VerificationDiagnostic, VerificationError, VerificationStage, VerifiedSignedDocument,
+    WireErrorCode,
+};
 pub use strict_json::{StrictJsonError, parse_strict_json};
 
 /// SDK package version.

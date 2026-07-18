@@ -91,7 +91,7 @@ impl ConformanceRunner {
     ///
     /// # Errors
     ///
-    /// Returns [`ConformanceError`] if the embedded schema registry cannot be prepared.
+    /// Returns `ConformanceError` if the embedded schema registry cannot be prepared.
     pub fn new() -> Result<Self, ConformanceError> {
         Ok(Self {
             catalog: SchemaCatalog::new()?,
@@ -105,7 +105,7 @@ impl ConformanceRunner {
     ///
     /// # Errors
     ///
-    /// Returns [`ConformanceError`] if the manifest, its paths, embedded assets, or schemas are
+    /// Returns `ConformanceError` if the manifest, its paths, embedded assets, or schemas are
     /// malformed.
     pub fn run(&self) -> Result<ConformanceReport, ConformanceError> {
         let manifest_bytes = ProtocolBundle::conformance("manifest.json")
