@@ -6,11 +6,11 @@
 
 這是 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol)
 的官方 Rust 協定 SDK。它提供嚴格 JSON 解析、精確固定的協定套件、離線 Draft 2020-12
-驗證、完整 schema conformance runner、RFC 8785 canonical JSON、SHA-256 內容 ID、
-Ed25519 工具，以及 schema-validating FrameCodec。
+驗證、完整的 Schema 符合性執行器、RFC 8785 正規 JSON、SHA-256 內容識別碼、
+Ed25519 工具，以及執行 Schema 驗證的 FrameCodec。
 
-> 目前版本證明的是 **schema-and-vector conformance**。它尚未宣稱實作 Python
-> 參考實作中的權威 Core、Worker runtime、Scheduler、儲存或 WebSocket client 行為。
+> 目前版本證明的是 **Schema 與測試向量符合性**。它尚未宣稱實作 Python
+> 參考實作中的權威 Core、Worker 執行階段、排程器、儲存或 WebSocket 用戶端行為。
 
 - 官方網站：<https://missionweaveprotocol.github.io/>
 - 協定：<https://github.com/missionweaveprotocol/missionweaveprotocol>
@@ -24,7 +24,7 @@ Ed25519 工具，以及 schema-validating FrameCodec。
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) 將本 SDK 固定到協定 commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 個 schema 與 52 個 conformance vector。
+`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 個 Schema 與 52 個符合性向量。
 SDK 與協定分別進行版本管理。
 
 ## 使用方式
@@ -36,7 +36,7 @@ SDK 與協定分別進行版本管理。
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
-驗證並規範編碼 WebSocket frame：
+驗證並規範編碼 WebSocket 訊框：
 
 ```rust
 use missionweaveprotocol::FrameCodec;
@@ -86,17 +86,17 @@ cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
 這 52 個向量僅證明結構化 Schema 行為。完整協定符合性還需要實作規範狀態機、權限檢查、
-fencing、預算、排序、replay、交付復原與人工核准規則。
+fencing、預算、排序、重播、交付復原與人工核准規則。
 
 ## 公開介面
 
-- `ProtocolBundle`：內嵌的 pin、Schema/向量資源與逐位元組摘要驗證。
+- `ProtocolBundle`：內嵌的固定資訊、Schema/向量資源與逐位元組摘要驗證。
 - `parse_strict_json`：拒絕重複成員與尾隨資料的 UTF-8 解析。
 - `SchemaCatalog`：啟用格式斷言的離線 Draft 2020-12 `$id` 登錄。
 - `ConformanceRunner`：全部 25 個有效與 27 個無效規範向量。
 - `canonical_bytes` / `canonical_sha256`：RFC 8785 與 `sha256:` 內容識別碼。
 - `Ed25519Signer`：原始簽章與頂層 `signature` 省略規則。
-- `FrameCodec`：圍繞規範 frame Schema 的嚴格解碼與規範編碼。
+- `FrameCodec`：圍繞規範訊框 Schema 的嚴格解碼與規範編碼。
 
 ## 開發與驗證
 
@@ -111,7 +111,7 @@ cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-crate 包含固定的 Schema 與符合性向量，因此驗證和 CLI 在執行階段不需要網路存取。
+`crate` 包含固定的 Schema 與符合性向量，因此驗證和 CLI 在執行階段不需要網路存取。
 
 ## 安全性
 

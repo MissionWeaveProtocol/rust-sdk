@@ -6,13 +6,13 @@
 
 SDK de protocole Rust officiel pour
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
-Il fournit une analyse JSON stricte, le bundle de protocole épinglé exactement, la validation
-Draft 2020-12 hors ligne, le runner complet de conformité des schemas, le JSON canonique RFC 8785,
-les identifiants SHA-256, les outils Ed25519 et un FrameCodec validant les schemas.
+Il fournit une analyse JSON stricte, le paquet de protocole épinglé exactement, la validation
+Draft 2020-12 hors ligne, l’outil complet d’exécution des tests de conformité des schémas, le JSON
+canonique RFC 8785, les identifiants SHA-256, les outils Ed25519 et un FrameCodec validant les schémas.
 
 > La version actuelle démontre une **conformité limitée aux schémas et aux vecteurs**. Elle ne
-> prétend pas encore implémenter le Core autoritatif, le runtime Worker, le Scheduler, le stockage ou
-> le client WebSocket de l’implémentation de référence Python.
+> prétend pas encore implémenter le Core faisant autorité, l’environnement d’exécution Worker,
+> l’ordonnanceur, le stockage ou le client WebSocket de l’implémentation de référence Python.
 
 - Site officiel : <https://missionweaveprotocol.github.io/>
 - Protocole : <https://github.com/missionweaveprotocol/missionweaveprotocol>
@@ -26,7 +26,7 @@ les identifiants SHA-256, les outils Ed25519 et un FrameCodec validant les schem
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) lie le SDK au commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`, aux 21 schemas et aux 52 vecteurs de conformité. Les
+`6f10987627d62fb296e3490ceceb5539b1e94b70`, aux 21 schémas et aux 52 vecteurs de conformité. Les
 versions du SDK et du protocole sont indépendantes.
 
 ## Utilisation
@@ -88,8 +88,9 @@ Résultat attendu :
 ```
 
 Les 52 vecteurs prouvent uniquement le comportement structurel des schémas. La conformité complète
-au protocole exige aussi les machines d’état normatives, les contrôles d’autorité, le fencing, les
-budgets, l’ordre, le replay, la reprise des livraisons et les règles d’approbation humaine.
+au protocole exige aussi les machines d’état normatives, les contrôles d’autorité, le fencing qui
+invalide les autorisations obsolètes, les budgets, l’ordre, la prévention des rejeux, la reprise des
+livraisons et les règles d’approbation humaine.
 
 ## Interface publique
 
@@ -117,10 +118,10 @@ cargo package --locked
 ```
 
 Le crate contient les schémas et vecteurs de conformité épinglés ; la validation et la CLI
-fonctionnent donc sans accès réseau au runtime.
+fonctionnent donc sans accès réseau pendant l’exécution.
 
 ## Sécurité
 
 Signalez les vulnérabilités en privé au moyen des GitHub Security Advisories de ce dépôt. N’incluez
-pas d’identifiants de production, de clés privées ni de données Mission sensibles dans les issues
-publiques.
+pas d’identifiants de production, de clés privées ni de données Mission sensibles dans les tickets
+publics.

@@ -5,13 +5,15 @@
 # MissionWeaveProtocol Rust SDK
 
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol)
-公式の Rust プロトコル SDK です。strict JSON 解析、正確に pin されたプロトコル bundle、
-オフライン Draft 2020-12 検証、完全な schema conformance runner、RFC 8785 canonical
-JSON、SHA-256 content ID、Ed25519 ヘルパー、schema-validating FrameCodec を提供します。
+公式の Rust プロトコル SDK です。厳密な JSON 解析、正確に固定された
+プロトコルバンドル、
+オフラインの Draft 2020-12 検証、完全な Schema 適合性ランナー、RFC 8785 正規 JSON、
+SHA-256 コンテンツ ID、Ed25519 ヘルパー、Schema を検証する FrameCodec を提供します。
 
-> 現在のリリースが示すのは **schema-and-vector conformance** です。Python
-> リファレンス実装の authoritative Core、Worker runtime、Scheduler、storage、
-> WebSocket client の動作を実装したとはまだ表明しません。
+> 現在のリリースが示すのは **Schema とベクトルへの適合**です。Python
+> リファレンス実装の正本として機能する Core、Worker ランタイム、
+> スケジューラー、ストレージ、
+> WebSocket クライアントの動作を実装したとはまだ表明しません。
 
 - 公式サイト：<https://missionweaveprotocol.github.io/>
 - プロトコル：<https://github.com/missionweaveprotocol/missionweaveprotocol>
@@ -24,9 +26,9 @@ JSON、SHA-256 content ID、Ed25519 ヘルパー、schema-validating FrameCodec 
 | --- | --- |
 | `0.1.x` | `0.1` |
 
-[`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) は protocol commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 schema、52 vector に SDK を固定します。
-SDK とプロトコルは別々に versioning されます。
+[`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) は SDK をプロトコル commit
+`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 個の Schema、52 個の適合性ベクトルに
+固定します。SDK とプロトコルは個別にバージョン管理されます。
 
 ## 利用
 
@@ -37,7 +39,7 @@ crates.io 公開前はリポジトリを直接参照できます。
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
-WebSocket frame を検証し、正規形式でエンコードします。
+WebSocket フレームを検証し、正規形式でエンコードします。
 
 ```rust
 use missionweaveprotocol::FrameCodec;
@@ -74,7 +76,7 @@ Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-## Schema conformance の実行
+## Schema 適合性の実行
 
 ```bash
 cargo run --locked --bin missionweaveprotocol-conformance
@@ -86,19 +88,20 @@ cargo run --locked --bin missionweaveprotocol-conformance
 52/52 conformance vectors passed
 ```
 
-52 個の vector が証明するのは構造的な Schema の動作だけです。完全なプロトコル適合には、
-規範的な state machine、authority check、fencing、budget、ordering、replay、delivery
-recovery、人間による Approval も必要です。
+52 個のベクトルが証明するのは構造的な Schema の動作だけです。
+完全なプロトコル適合には、規範的な状態機械、権限検査、fencing、予算、順序付け、
+リプレイ、配信の復旧、人による Approval の規則も必要です。
 
 ## 公開 API
 
-- `ProtocolBundle`：埋め込み pin、Schema/vector リソース、バイト単位で正確な digest 検証。
-- `parse_strict_json`：重複 member と trailing data を拒否する UTF-8 解析。
-- `SchemaCatalog`：format assertion を有効にしたオフライン Draft 2020-12 `$id` registry。
-- `ConformanceRunner`：25 個の valid vector と 27 個の invalid vector すべて。
-- `canonical_bytes` / `canonical_sha256`：RFC 8785 と `sha256:` content ID。
-- `Ed25519Signer`：raw signature と top-level の `signature` 省略規則。
-- `FrameCodec`：規範的な frame Schema に対する strict decode と canonical encode。
+- `ProtocolBundle`：埋め込みの固定情報、Schema とベクトルのリソース、バイト単位で正確な
+  ダイジェスト検証。
+- `parse_strict_json`：重複メンバーと末尾データを拒否する UTF-8 解析。
+- `SchemaCatalog`：format アサーションを有効にしたオフライン Draft 2020-12 `$id` レジストリ。
+- `ConformanceRunner`：25 個の有効なベクトルと 27 個の無効なベクトルすべて。
+- `canonical_bytes` / `canonical_sha256`：RFC 8785 と `sha256:` コンテンツ ID。
+- `Ed25519Signer`：生の署名とトップレベルの `signature` 省略規則。
+- `FrameCodec`：規範的なフレーム Schema に対する厳密なデコードと正規エンコード。
 
 ## 開発と検証
 
@@ -113,10 +116,11 @@ cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-crate には固定された Schema と conformance vector が含まれるため、検証と CLI は runtime
+crate には固定された Schema と適合性ベクトルが含まれるため、検証と CLI は実行時
 でネットワークアクセスを必要としません。
 
 ## セキュリティ
 
 脆弱性は、このリポジトリの GitHub Security Advisories を通じて非公開で報告してください。
-本番環境の認証情報、秘密鍵、機密性の高い Mission data を公開 issue に含めないでください。
+本番環境の認証情報、秘密鍵、機密性の高い Mission データを公開 issue に含めないで
+ください。

@@ -6,12 +6,12 @@
 
 SDK oficial de protocolo en Rust para
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
-Incluye análisis JSON estricto, el bundle de protocolo fijado exactamente, validación Draft
-2020-12 sin red, el runner completo de conformidad de schemas, JSON canónico RFC 8785,
-identificadores SHA-256, utilidades Ed25519 y un FrameCodec con validación de schema.
+Incluye análisis JSON estricto, el paquete de protocolo fijado exactamente, validación Draft
+2020-12 sin red, el ejecutor completo de conformidad de esquemas, JSON canónico RFC 8785,
+identificadores SHA-256, utilidades Ed25519 y un FrameCodec con validación de esquemas.
 
 > La versión actual demuestra únicamente **conformidad con esquemas y vectores**. Todavía no afirma
-> implementar el Core autoritativo, el runtime de Worker, el Scheduler, el almacenamiento ni el
+> implementar el Core autoritativo, el entorno de ejecución de Worker, el planificador, el almacenamiento ni el
 > cliente WebSocket de la implementación de referencia en Python.
 
 - Sitio web: <https://missionweaveprotocol.github.io/>
@@ -26,7 +26,7 @@ identificadores SHA-256, utilidades Ed25519 y un FrameCodec con validación de s
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) fija el SDK al commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`, 21 schemas y 52 vectores de conformidad. Las
+`6f10987627d62fb296e3490ceceb5539b1e94b70`, 21 esquemas y 52 vectores de conformidad. Las
 versiones del SDK y del protocolo son independientes.
 
 ## Uso
@@ -38,7 +38,7 @@ Antes de una publicación en crates.io, usa el repositorio directamente:
 missionweaveprotocol = { git = "https://github.com/missionweaveprotocol/rust-sdk", branch = "main" }
 ```
 
-Valida un frame WebSocket y codifícalo canónicamente:
+Valida una trama WebSocket y codifícala canónicamente:
 
 ```rust
 use missionweaveprotocol::FrameCodec;
@@ -89,8 +89,8 @@ Resultado esperado:
 
 Los 52 vectores solo demuestran el comportamiento estructural de los esquemas. La conformidad
 completa con el protocolo también requiere las máquinas de estado normativas, controles de
-autoridad, fencing, presupuestos, orden, replay, recuperación de entregas y reglas de aprobación
-humana.
+autoridad, fencing que invalida las autoridades obsoletas, presupuestos, orden, prevención de
+repeticiones, recuperación de entregas y reglas de aprobación humana.
 
 ## Superficie pública
 
@@ -101,7 +101,7 @@ humana.
 - `ConformanceRunner`: los 25 vectores válidos y 27 inválidos canónicos.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 e identificadores de contenido `sha256:`.
 - `Ed25519Signer`: firmas sin procesar y reglas de omisión de `signature` en el nivel superior.
-- `FrameCodec`: decodificación estricta y codificación canónica sobre el esquema normativo de frames.
+- `FrameCodec`: decodificación estricta y codificación canónica sobre el esquema normativo de tramas.
 
 ## Desarrollo y verificación
 
@@ -117,10 +117,10 @@ cargo package --locked
 ```
 
 El crate incluye los esquemas y vectores de conformidad fijados, por lo que la validación y la CLI
-funcionan sin acceso a la red en runtime.
+funcionan sin acceso a la red durante la ejecución.
 
 ## Seguridad
 
 Informa de las vulnerabilidades de forma privada mediante GitHub Security Advisories para este
 repositorio. No incluyas credenciales de producción, claves privadas ni datos sensibles de Mission
-en issues públicos.
+en incidencias públicas.
