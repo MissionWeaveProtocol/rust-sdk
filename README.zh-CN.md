@@ -24,7 +24,7 @@ Ed25519 工具以及 schema-validating FrameCodec。
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) 将本 SDK 固定到协议 commit
-`00964ea9064cbf1f0eca8af21a0c57367ee14752`、21 个 schema 和 43 个 conformance vector。
+`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 个 schema 和 52 个 conformance vector。
 SDK 与协议独立版本化。
 
 ## 使用
@@ -50,7 +50,7 @@ let canonical = codec.encode(&frame)?;
 - `ProtocolBundle`：嵌入的 pin、schema/vector 资源与逐字节 digest 校验；
 - `parse_strict_json`：拒绝重复成员和尾随数据的 UTF-8 JSON 解析；
 - `SchemaCatalog`：启用 format assertion 的离线 Draft 2020-12 `$id` registry；
-- `ConformanceRunner`：22 个 valid 与 21 个 invalid 规范 vector；
+- `ConformanceRunner`：25 个 valid 与 27 个 invalid 规范 vector；
 - `canonical_bytes`、`canonical_sha256` 与 `Ed25519Signer`；
 - `FrameCodec`：规范 frame schema 之上的严格 decode 与 canonical encode。
 
@@ -60,7 +60,7 @@ let canonical = codec.encode(&frame)?;
 cargo run --locked --bin missionweaveprotocol-conformance
 ```
 
-预期输出为 `43/43 conformance vectors passed`。这些 vector 只证明结构化 schema 行为；
+预期输出为 `52/52 conformance vectors passed`。这些 vector 只证明结构化 schema 行为；
 完整协议一致性还要求状态机、权限、fencing、预算、排序、replay、恢复和人类批准规则。
 
 ```bash

@@ -234,10 +234,10 @@ mod tests {
     fn verifies_exact_embedded_bundle() {
         let summary = ProtocolBundle::verify().expect("bundle should match its pin");
         assert_eq!(summary.schema_files, 21);
-        assert_eq!(summary.conformance_files, 44);
+        assert_eq!(summary.conformance_files, 53);
         assert_eq!(
             summary.bundle_sha256,
-            "281fb1ec9b73e07f7a2897e576dbbad021085cf7293c1e9450ba3fbdec7f2cda"
+            "b5590fae29ae09e8c2ec77973405878f4dcb13d23e8acdfb888d563ec770bba7"
         );
     }
 
