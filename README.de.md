@@ -7,12 +7,12 @@
 Offizielles Rust-Protokoll-SDK für
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
 Es bietet striktes JSON-Parsing, das exakt gepinnte Protokoll-Bundle, Offline-Validierung nach
-Draft 2020-12, den vollständigen Schema-Konformitätsrunner, kanonisches JSON nach RFC 8785,
+Draft 2020-12, den vollständigen Schema-Konformitätsprüfer, kanonisches JSON nach RFC 8785,
 SHA-256-Inhalts-IDs, Ed25519-Helfer und einen schema-validierenden FrameCodec.
 
 > Die aktuelle Version weist ausschließlich **Schema- und Vektorkonformität** nach. Sie beansprucht
-> noch nicht, den autoritativen Core, die Worker Runtime, den Scheduler, Storage oder den WebSocket
-> Client der Python-Referenzimplementierung umzusetzen.
+> noch nicht, den autoritativen Core, die Worker-Laufzeit, den Planer, den Speicher oder den
+> WebSocket-Client der Python-Referenzimplementierung umzusetzen.
 
 - Website: <https://missionweaveprotocol.github.io/>
 - Protokoll: <https://github.com/missionweaveprotocol/missionweaveprotocol>
@@ -88,8 +88,9 @@ Erwartetes Ergebnis:
 ```
 
 Die 52 Vektoren belegen nur das strukturelle Schemaverhalten. Vollständige Protokollkonformität
-erfordert außerdem die normativen Zustandsautomaten, Autoritätsprüfungen, Fencing, Budgets,
-Reihenfolge, Replay, Wiederherstellung der Zustellung und Regeln für menschliche Freigaben.
+erfordert außerdem die normativen Zustandsautomaten, Autoritätsprüfungen, Fencing durch Epochs,
+Budgets, Reihenfolge, Replay-Schutz, Wiederherstellung der Zustellung und Regeln für menschliche
+Freigaben.
 
 ## Öffentliche API
 
