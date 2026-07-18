@@ -88,7 +88,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -112,7 +112,7 @@ ausdrücklich als `OrganizationWide` deklarierten Snapshot liefern; partielle Be
 ohne Vollständigkeitsangabe schlagen bei der Schlüsselauflösung geschlossen fehl. Das verifizierte
 Ergebnis hält unveränderlich das geparste Dokument und die empfangenen Bytes, JCS-Bytes/Hashes der
 Signiereingabe und des vollständigen Dokuments, den exakten und geparsten geschützten Zeitpunkt,
-Signaturmaterial und aufgelöste Registry-Belege fest. First Admission, Aktualität und Autorisierung
+Signaturmaterial und aufgelöste Agent-Registry-Belege fest. First-Admission Record, Aktualität und Autorisierung
 bleiben getrennte Prüfungen. Siehe das ausführbare Beispiel
 [`sign_document`](examples/sign_document.rs).
 

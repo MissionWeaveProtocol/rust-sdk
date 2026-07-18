@@ -88,7 +88,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -112,7 +112,7 @@ devolver un snapshot declarado explícitamente como `OrganizationWide`; la evide
 completitud declarada falla de forma cerrada en la resolución de claves. El resultado verificado
 conserva de forma inmutable el documento analizado y los bytes recibidos, los bytes/hash JCS de la
 entrada firmada y del documento completo, el tiempo protegido exacto y analizado, la firma y la
-evidencia del Registry resuelto. First Admission, vigencia y autorización son comprobaciones
+evidencia del Agent Registry resuelto. First-Admission Record, vigencia y autorización son comprobaciones
 separadas. Consulta el ejemplo ejecutable [`sign_document`](examples/sign_document.rs).
 
 ## Ejecutar la conformidad de esquemas

@@ -249,7 +249,7 @@ impl KeyResolutionRequest {
     }
 }
 
-/// Resolver assertion about how much Organization Registry state a snapshot covers.
+/// Resolver assertion about how much organization-wide Agent Registry state a snapshot covers.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum KeyRegistryCompleteness {
     /// Complete Organization-wide key IDs, public keys, aliases, and validity history.
@@ -277,7 +277,7 @@ impl KeyRegistrySnapshot {
         }
     }
 
-    /// Construct a snapshot asserted to cover the complete Organization Registry.
+    /// Construct a snapshot asserted to cover the complete Agent Registry.
     #[must_use]
     pub fn organization_wide(bytes: Vec<u8>) -> Self {
         Self::new(bytes, KeyRegistryCompleteness::OrganizationWide)
@@ -302,11 +302,11 @@ impl KeyRegistrySnapshot {
 /// Organization-wide public-key uniqueness, aliases, and historical validity itself. A partial or
 /// unspecified snapshot fails closed at key-resolution.
 pub trait KeyResolver {
-    /// Resolve complete Registry evidence for one fully described verification request.
+    /// Resolve complete Agent Registry evidence for one fully described verification request.
     ///
     /// # Errors
     ///
-    /// Returns an application-defined adapter failure when Registry evidence is unavailable.
+    /// Returns an application-defined adapter failure when Agent Registry evidence is unavailable.
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError>;
 }
 
@@ -804,9 +804,9 @@ impl SignedDocumentCodec {
 
     /// Verify a Signed Document under an explicitly selected one of the nine profiles.
     ///
-    /// The codec owns strict parsing, normative schema selection, envelope checks, Registry
-    /// validation, JCS, and Ed25519 verification. First Admission, freshness, and authorization
-    /// are intentionally outside this module.
+    /// The codec owns strict parsing, normative schema selection, envelope checks, Agent Registry
+    /// validation, JCS, and Ed25519 verification. The First-Admission Record, freshness, and
+    /// authorization are intentionally outside this module.
     ///
     /// # Errors
     ///
@@ -1375,7 +1375,7 @@ fn resolve_key(
         &["organizationId", "bindings"],
         &[],
         VerificationStage::KeyResolution,
-        "Organization Registry",
+        "Agent Registry",
     )?;
     let organization_id = required_string(
         registry.get("organizationId"),

@@ -29,7 +29,7 @@ impl SigningKey for ExampleSigningKey {
 }
 
 struct ExampleKeyResolver {
-    organization_registry: Vec<u8>,
+    agent_registry: Vec<u8>,
 }
 
 impl KeyResolver for ExampleKeyResolver {
@@ -40,7 +40,7 @@ impl KeyResolver for ExampleKeyResolver {
             request.protected_time_text()
         );
         Ok(KeyRegistrySnapshot::organization_wide(
-            self.organization_registry.clone(),
+            self.agent_registry.clone(),
         ))
     }
 }
@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         signer: Ed25519Signer::from_seed(seed),
     };
     let resolver = ExampleKeyResolver {
-        organization_registry: ProtocolBundle::cryptography("keys/registry-valid.json")
+        agent_registry: ProtocolBundle::cryptography("keys/registry-valid.json")
             .expect("embedded Registry fixture")
             .to_vec(),
     };

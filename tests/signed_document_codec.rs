@@ -1,6 +1,7 @@
 use std::{cell::Cell, fs, path::Path};
 
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
+use jsonschema::Draft;
 use missionweaveprotocol::{
     AdapterError, Ed25519Signer, KeyRegistryCompleteness, KeyRegistrySnapshot,
     KeyResolutionRequest, KeyResolver, KeySignerExpectation, PrincipalKind, SignedDocumentCodec,
@@ -275,6 +276,12 @@ fn signing_rejects_a_non_prime_order_signature_from_the_adapter() {
 fn satisfies_every_vendored_cryptography_manifest_evaluation() {
     let manifest = read_json("cryptography/manifest.json");
     let cases = manifest["cases"].as_array().expect("manifest cases");
+    let registry_schema = manifest["fixtureSchemas"]["registry"]
+        .as_str()
+        .expect("Registry fixture schema path");
+    let signing_key_schema = manifest["fixtureSchemas"]["signingKey"]
+        .as_str()
+        .expect("signing-key fixture schema path");
     let codec = SignedDocumentCodec::new().expect("codec");
     let mut evaluations = 0;
     let mut completed = 0;
@@ -299,6 +306,14 @@ fn satisfies_every_vendored_cryptography_manifest_evaluation() {
                 );
                 completed += 1;
                 continue;
+            }
+
+            assert_fixture_schema(
+                registry_schema,
+                evaluation["registry"].as_str().expect("Registry path"),
+            );
+            if let Some(signing_key_path) = evaluation["signingKey"].as_str() {
+                assert_fixture_schema(signing_key_schema, signing_key_path);
             }
 
             let kind = signed_kind(evaluation["profileId"].as_str().expect("profile ID"));
@@ -416,6 +431,41 @@ fn satisfies_every_vendored_cryptography_manifest_evaluation() {
         (cases.len(), evaluations, completed, rejected),
         (22, 58, 12, 46)
     );
+}
+
+#[test]
+fn uses_the_manifest_declared_fixture_schemas() {
+    let manifest = read_json("cryptography/manifest.json");
+    let schema_path = manifest["fixtureSchemas"]["registry"]
+        .as_str()
+        .expect("Registry fixture schema path");
+    let schema = read_json(schema_path);
+    let mut invalid = read_json("cryptography/keys/registry-valid.json");
+    invalid
+        .as_object_mut()
+        .expect("Registry object")
+        .remove("organizationId");
+
+    assert!(validate_fixture(&schema, &invalid).is_err());
+}
+
+fn assert_fixture_schema(schema_path: &str, fixture_path: &str) {
+    let schema = read_json(schema_path);
+    let fixture = read_json(fixture_path);
+    validate_fixture(&schema, &fixture).unwrap_or_else(|error| {
+        panic!("fixture {fixture_path} failed declared schema {schema_path}: {error}")
+    });
+}
+
+fn validate_fixture(schema: &Value, fixture: &Value) -> Result<(), String> {
+    let validator = jsonschema::options()
+        .with_draft(Draft::Draft202012)
+        .should_validate_formats(true)
+        .build(schema)
+        .map_err(|error| error.to_string())?;
+    validator
+        .validate(fixture)
+        .map_err(|error| error.to_string())
 }
 
 fn read_json(relative: &str) -> Value {

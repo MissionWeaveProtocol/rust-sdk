@@ -86,7 +86,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -108,8 +108,8 @@ The kind is always explicit; the codec never infers one of the nine profiles. `S
 `KeyResolver` are the only application adapters. A resolver must return a snapshot explicitly
 asserted as `OrganizationWide`; partial or unspecified evidence fails closed at key resolution.
 The verified result immutably retains the parsed and received document, signing and complete JCS
-bytes/hashes, exact and parsed protected time, signature material, and resolved Registry evidence.
-First Admission, freshness, and authorization remain separate checks. See the runnable
+bytes/hashes, exact and parsed protected time, signature material, and resolved Agent Registry evidence.
+The First-Admission Record, freshness, and authorization remain separate checks. See the runnable
 [`sign_document` example](examples/sign_document.rs).
 
 ## Run schema conformance

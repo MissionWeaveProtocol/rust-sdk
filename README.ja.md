@@ -87,7 +87,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -110,7 +110,7 @@ match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
 `OrganizationWide` と明示した snapshot を返す必要があり、部分的または完全性不明の
 証拠は key-resolution で fail closed します。検証結果は、解析済みドキュメントと受信
 bytes、署名入力と完全ドキュメントの JCS bytes/hash、保護時刻の正確な文字列と解析値、
-署名材料、解決済み Registry 証拠を不変に保持します。First Admission、freshness、
+署名材料、解決済み Agent Registry 証拠を不変に保持します。First-Admission Record、freshness、
 authorization は別の検査です。実行可能な例は
 [`sign_document`](examples/sign_document.rs) を参照してください。
 

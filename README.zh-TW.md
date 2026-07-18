@@ -83,7 +83,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -105,8 +105,8 @@ match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
 `KeyResolver` 是僅有的應用程式轉接器。Resolver 必須回傳明確宣告為
 `OrganizationWide` 的快照；部分或未宣告完整性的證據會在金鑰解析階段失敗關閉。
 驗證結果以不可變方式保留解析後文件與原始接收位元組、簽署輸入及完整文件的 JCS
-位元組/雜湊、精確文字及解析後的受保護時間、簽章材料與已解析的 Registry 證據。
-首次接納、時效性與授權仍是獨立檢查。可執行範例請見
+位元組/雜湊、精確文字及解析後的受保護時間、簽章材料與已解析的 Agent Registry 證據。
+首次准入記錄（First-Admission Record）、時效性與授權仍是獨立檢查。可執行範例請見
 [`sign_document`](examples/sign_document.rs)。
 
 ## 執行 Schema 符合性檢查

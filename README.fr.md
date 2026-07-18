@@ -88,7 +88,7 @@ use missionweaveprotocol::{
 
 impl KeyResolver for RegistryResolver {
     fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
-        let complete_registry = self.load_complete_organization_registry(request)?;
+        let complete_registry = self.load_complete_agent_registry(request)?;
         Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
     }
 }
@@ -112,7 +112,7 @@ snapshot déclaré explicitement `OrganizationWide` ; une preuve partielle ou sa
 complétude échoue de manière fermée lors de la résolution de clé. Le résultat vérifié conserve de
 façon immuable le document analysé et les octets reçus, les octets/empreintes JCS de l’entrée signée
 et du document complet, le temps protégé exact et analysé, la signature et la preuve du Registry
-résolu. First Admission, la fraîcheur et l’autorisation restent des contrôles distincts. Consultez
+résolu depuis l’Agent Registry. First-Admission Record, la fraîcheur et l’autorisation restent des contrôles distincts. Consultez
 l’exemple exécutable [`sign_document`](examples/sign_document.rs).
 
 ## Exécuter la conformité des schémas
