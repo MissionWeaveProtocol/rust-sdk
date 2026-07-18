@@ -7,7 +7,10 @@ mod frame;
 mod schema;
 mod strict_json;
 
-pub use bundle::{BundleError, BundleSummary, ProtocolBundle, ProtocolPin};
+pub use bundle::{
+    BundleError, BundleSummary, CryptographyBundleSummary, CryptographyPin, ProtocolBundle,
+    ProtocolPin,
+};
 pub use canonical::{
     CanonicalError, Ed25519Signer, canonical_bytes, canonical_sha256, signature_input,
 };
