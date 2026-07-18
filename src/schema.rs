@@ -91,6 +91,7 @@ impl SchemaCatalog {
         let validator = jsonschema::options()
             .with_draft(Draft::Draft202012)
             .with_registry(&self.registry)
+            .with_format("date-time", crate::signed_document::is_protocol_rfc3339)
             .should_validate_formats(true)
             .build(schema)
             .map_err(|error| SchemaError::Compile {

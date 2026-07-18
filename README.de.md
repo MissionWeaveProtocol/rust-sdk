@@ -8,9 +8,11 @@ Offizielles Rust-Protokoll-SDK für
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
 Es bietet striktes JSON-Parsing, das exakt gepinnte Protokoll-Bundle, Offline-Validierung nach
 Draft 2020-12, den vollständigen Schema-Konformitätsprüfer, kanonisches JSON nach RFC 8785,
-SHA-256-Inhalts-IDs, Ed25519-Helfer und einen schema-validierenden FrameCodec.
+SHA-256-Inhalts-IDs, Ed25519-Helfer, `SignedDocumentCodec` für die neun expliziten Profile und
+einen schema-validierenden FrameCodec.
 
-> Die aktuelle Version weist ausschließlich **Schema- und Vektorkonformität** nach. Sie beansprucht
+> Die aktuelle Version weist **Schema- und Kryptografie-Vektorkonformität für signierte Dokumente**
+> nach. Sie beansprucht
 > noch nicht, den autoritativen Core, die Worker-Laufzeit, den Planer, den Speicher oder den
 > WebSocket-Client der Python-Referenzimplementierung umzusetzen.
 
@@ -75,6 +77,45 @@ Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
+Ein signaturpflichtiges dauerhaftes Dokument über das normative sechsstufige Profil signieren und
+prüfen:
+
+```rust
+use missionweaveprotocol::{
+    KeyRegistrySnapshot, KeyResolutionRequest, KeyResolver, SignedDocumentCodec,
+    SignedDocumentKind,
+};
+
+impl KeyResolver for RegistryResolver {
+    fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
+        let complete_registry = self.load_complete_organization_registry(request)?;
+        Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
+    }
+}
+
+let codec = SignedDocumentCodec::new()?;
+let signed = codec.sign(SignedDocumentKind::Command, &unsigned_command, &signing_key)?;
+let received = serde_json::to_vec(&signed)?;
+match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
+    Ok(verified) => println!("{}", verified.signing_hash()),
+    Err(error) => {
+        send_to_peer(error.wire_code()); // verrät nicht, welche Prüfung fehlgeschlagen ist
+        audit_locally(error.diagnostic()); // geschützte Stufe und Begründung
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Der Dokumenttyp wird immer explizit angegeben; der Codec leitet keines der neun Profile ab.
+`SigningKey` und `KeyResolver` sind die einzigen Anwendungsadapter. Der Resolver muss einen
+ausdrücklich als `OrganizationWide` deklarierten Snapshot liefern; partielle Belege oder Belege
+ohne Vollständigkeitsangabe schlagen bei der Schlüsselauflösung geschlossen fehl. Das verifizierte
+Ergebnis hält unveränderlich das geparste Dokument und die empfangenen Bytes, JCS-Bytes/Hashes der
+Signiereingabe und des vollständigen Dokuments, den exakten und geparsten geschützten Zeitpunkt,
+Signaturmaterial und aufgelöste Registry-Belege fest. First Admission, Aktualität und Autorisierung
+bleiben getrennte Prüfungen. Siehe das ausführbare Beispiel
+[`sign_document`](examples/sign_document.rs).
+
 ## Schemakonformität ausführen
 
 ```bash
@@ -100,6 +141,10 @@ Freigaben.
 - `ConformanceRunner`: alle 25 gültigen und 27 ungültigen kanonischen Vektoren.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 und `sha256:`-Inhalts-IDs.
 - `Ed25519Signer`: Rohsignaturen und Regeln zum Auslassen des obersten `signature`-Members.
+- `SignedDocumentCodec`: explizite Signatur für neun Profile und sechsstufige Prüfung mit
+  vollständigen unveränderlichen Belegen und Wire-Fehlern ohne Offenlegung des Fehlerpunkts.
+- `SigningKey` / `KeyResolver`: die einzigen Anwendungsadapter; die Schlüsselauflösung verlangt
+  einen organisationsweit vollständigen `KeyRegistrySnapshot`.
 - `FrameCodec`: striktes Dekodieren und kanonisches Kodieren anhand des normativen Frame-Schemas.
 
 ## Entwickeln und prüfen

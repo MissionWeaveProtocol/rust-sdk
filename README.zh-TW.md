@@ -7,9 +7,9 @@
 這是 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol)
 的官方 Rust 協定 SDK。它提供嚴格 JSON 解析、精確固定的協定套件、離線 Draft 2020-12
 驗證、完整的 Schema 符合性執行器、RFC 8785 正規 JSON、SHA-256 內容識別碼、
-Ed25519 工具，以及執行 Schema 驗證的 FrameCodec。
+Ed25519 工具、涵蓋九種 profile 的 `SignedDocumentCodec`，以及執行 Schema 驗證的 FrameCodec。
 
-> 目前版本證明的是 **Schema 與測試向量符合性**。它尚未宣稱實作 Python
+> 目前版本證明的是 **Schema 與簽署文件密碼學測試向量符合性**。它尚未宣稱實作 Python
 > 參考實作中的權威 Core、Worker 執行階段、排程器、儲存或 WebSocket 用戶端行為。
 
 - 官方網站：<https://missionweaveprotocol.github.io/>
@@ -73,6 +73,42 @@ Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
+透過規範的六階段 profile 簽署並驗證必須帶有簽章的持久化文件：
+
+```rust
+use missionweaveprotocol::{
+    KeyRegistrySnapshot, KeyResolutionRequest, KeyResolver, SignedDocumentCodec,
+    SignedDocumentKind,
+};
+
+impl KeyResolver for RegistryResolver {
+    fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
+        let complete_registry = self.load_complete_organization_registry(request)?;
+        Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
+    }
+}
+
+let codec = SignedDocumentCodec::new()?;
+let signed = codec.sign(SignedDocumentKind::Command, &unsigned_command, &signing_key)?;
+let received = serde_json::to_vec(&signed)?;
+match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
+    Ok(verified) => println!("{}", verified.signing_hash()),
+    Err(error) => {
+        send_to_peer(error.wire_code()); // 不洩露失敗細節
+        audit_locally(error.diagnostic()); // 僅供受保護稽核使用的階段與原因
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+文件種類必須明確指定；Codec 不會推斷九種 profile 中的任何一種。`SigningKey` 與
+`KeyResolver` 是僅有的應用程式轉接器。Resolver 必須回傳明確宣告為
+`OrganizationWide` 的快照；部分或未宣告完整性的證據會在金鑰解析階段失敗關閉。
+驗證結果以不可變方式保留解析後文件與原始接收位元組、簽署輸入及完整文件的 JCS
+位元組/雜湊、精確文字及解析後的受保護時間、簽章材料與已解析的 Registry 證據。
+首次接納、時效性與授權仍是獨立檢查。可執行範例請見
+[`sign_document`](examples/sign_document.rs)。
+
 ## 執行 Schema 符合性檢查
 
 ```bash
@@ -96,6 +132,10 @@ fencing、預算、排序、重播、交付復原與人工核准規則。
 - `ConformanceRunner`：全部 25 個有效與 27 個無效規範向量。
 - `canonical_bytes` / `canonical_sha256`：RFC 8785 與 `sha256:` 內容識別碼。
 - `Ed25519Signer`：原始簽章與頂層 `signature` 省略規則。
+- `SignedDocumentCodec`：明確九 profile 簽署與六階段驗證，回傳完整不可變證據，並使用
+  不洩露驗證細節的 wire 錯誤。
+- `SigningKey` / `KeyResolver`：僅有的應用程式轉接器；金鑰解析要求組織範圍完整的
+  `KeyRegistrySnapshot`。
 - `FrameCodec`：圍繞規範訊框 Schema 的嚴格解碼與規範編碼。
 
 ## 開發與驗證

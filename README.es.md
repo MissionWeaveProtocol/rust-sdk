@@ -8,9 +8,11 @@ SDK oficial de protocolo en Rust para
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
 Incluye análisis JSON estricto, el paquete de protocolo fijado exactamente, validación Draft
 2020-12 sin red, el ejecutor completo de conformidad de esquemas, JSON canónico RFC 8785,
-identificadores SHA-256, utilidades Ed25519 y un FrameCodec con validación de esquemas.
+identificadores SHA-256, utilidades Ed25519, `SignedDocumentCodec` para los nueve perfiles
+explícitos y un FrameCodec con validación de esquemas.
 
-> La versión actual demuestra únicamente **conformidad con esquemas y vectores**. Todavía no afirma
+> La versión actual demuestra **conformidad con esquemas y vectores criptográficos de documentos
+> firmados**. Todavía no afirma
 > implementar el Core autoritativo, el entorno de ejecución de Worker, el planificador, el almacenamiento ni el
 > cliente WebSocket de la implementación de referencia en Python.
 
@@ -75,6 +77,44 @@ Ed25519Signer::verify_document(&signed, signer.verifying_key_bytes())?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
+Firma y verifica un documento duradero que requiere firma mediante el perfil normativo de seis
+etapas:
+
+```rust
+use missionweaveprotocol::{
+    KeyRegistrySnapshot, KeyResolutionRequest, KeyResolver, SignedDocumentCodec,
+    SignedDocumentKind,
+};
+
+impl KeyResolver for RegistryResolver {
+    fn resolve(&self, request: &KeyResolutionRequest) -> Result<KeyRegistrySnapshot, AdapterError> {
+        let complete_registry = self.load_complete_organization_registry(request)?;
+        Ok(KeyRegistrySnapshot::organization_wide(complete_registry))
+    }
+}
+
+let codec = SignedDocumentCodec::new()?;
+let signed = codec.sign(SignedDocumentKind::Command, &unsigned_command, &signing_key)?;
+let received = serde_json::to_vec(&signed)?;
+match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
+    Ok(verified) => println!("{}", verified.signing_hash()),
+    Err(error) => {
+        send_to_peer(error.wire_code()); // no revela qué comprobación falló
+        audit_locally(error.diagnostic()); // etapa y motivo protegidos
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+El tipo de documento siempre se indica explícitamente; el codec no infiere ninguno de los nueve
+perfiles. `SigningKey` y `KeyResolver` son los únicos adaptadores de aplicación. El resolver debe
+devolver un snapshot declarado explícitamente como `OrganizationWide`; la evidencia parcial o sin
+completitud declarada falla de forma cerrada en la resolución de claves. El resultado verificado
+conserva de forma inmutable el documento analizado y los bytes recibidos, los bytes/hash JCS de la
+entrada firmada y del documento completo, el tiempo protegido exacto y analizado, la firma y la
+evidencia del Registry resuelto. First Admission, vigencia y autorización son comprobaciones
+separadas. Consulta el ejemplo ejecutable [`sign_document`](examples/sign_document.rs).
+
 ## Ejecutar la conformidad de esquemas
 
 ```bash
@@ -101,6 +141,10 @@ repeticiones, recuperación de entregas y reglas de aprobación humana.
 - `ConformanceRunner`: los 25 vectores válidos y 27 inválidos canónicos.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 e identificadores de contenido `sha256:`.
 - `Ed25519Signer`: firmas sin procesar y reglas de omisión de `signature` en el nivel superior.
+- `SignedDocumentCodec`: firma explícita de nueve perfiles y verificación en seis etapas con
+  evidencia completa e inmutable y errores wire que no revelan el punto de fallo.
+- `SigningKey` / `KeyResolver`: los únicos adaptadores de aplicación; la resolución exige un
+  `KeyRegistrySnapshot` completo para toda la organización.
 - `FrameCodec`: decodificación estricta y codificación canónica sobre el esquema normativo de tramas.
 
 ## Desarrollo y verificación

@@ -647,6 +647,7 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "clap",
+ "curve25519-dalek",
  "ed25519-dalek",
  "include_dir",
  "jsonschema",
