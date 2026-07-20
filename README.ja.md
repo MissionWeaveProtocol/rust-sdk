@@ -28,7 +28,7 @@ SHA-256 コンテンツ ID、Ed25519 ヘルパー、Schema を検証する Frame
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) は SDK をプロトコル commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 個の Schema、52 個の適合性ベクトルに
+`33e47ad8a7318f942de77fb72dbb054d85881b40`、21 個の Schema、56 個の適合性ベクトルに
 固定します。SDK とプロトコルは個別にバージョン管理されます。
 
 ## 利用
@@ -123,10 +123,10 @@ cargo run --locked --bin missionweaveprotocol-conformance
 期待される結果：
 
 ```text
-52/52 conformance vectors passed
+56/56 conformance vectors passed
 ```
 
-52 個のベクトルが証明するのは構造的な Schema の動作だけです。
+56 個のベクトルが証明するのは構造的な Schema の動作だけです。
 完全なプロトコル適合には、規範的な状態機械、権限検査、fencing、予算、順序付け、
 リプレイ、配信の復旧、人による Approval の規則も必要です。
 
@@ -136,7 +136,7 @@ cargo run --locked --bin missionweaveprotocol-conformance
   ダイジェスト検証。
 - `parse_strict_json`：重複メンバーと末尾データを拒否する UTF-8 解析。
 - `SchemaCatalog`：format アサーションを有効にしたオフライン Draft 2020-12 `$id` レジストリ。
-- `ConformanceRunner`：25 個の有効なベクトルと 27 個の無効なベクトルすべて。
+- `ConformanceRunner`：26 個の有効なベクトルと 30 個の無効なベクトルすべて。
 - `canonical_bytes` / `canonical_sha256`：RFC 8785 と `sha256:` コンテンツ ID。
 - `Ed25519Signer`：生の署名とトップレベルの `signature` 省略規則。
 - `SignedDocumentCodec`：明示的な 9 profile の署名と 6 段階検証。不変の完全な証拠と、

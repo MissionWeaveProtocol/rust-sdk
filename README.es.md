@@ -28,7 +28,7 @@ explícitos y un FrameCodec con validación de esquemas.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) fija el SDK al commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`, 21 esquemas y 52 vectores de conformidad. Las
+`33e47ad8a7318f942de77fb72dbb054d85881b40`, 21 esquemas y 56 vectores de conformidad. Las
 versiones del SDK y del protocolo son independientes.
 
 ## Uso
@@ -124,10 +124,10 @@ cargo run --locked --bin missionweaveprotocol-conformance
 Resultado esperado:
 
 ```text
-52/52 conformance vectors passed
+56/56 conformance vectors passed
 ```
 
-Los 52 vectores solo demuestran el comportamiento estructural de los esquemas. La conformidad
+Los 56 vectores solo demuestran el comportamiento estructural de los esquemas. La conformidad
 completa con el protocolo también requiere las máquinas de estado normativas, controles de
 autoridad, fencing que invalida las autoridades obsoletas, presupuestos, orden, prevención de
 repeticiones, recuperación de entregas y reglas de aprobación humana.
@@ -138,7 +138,7 @@ repeticiones, recuperación de entregas y reglas de aprobación humana.
   resúmenes, byte a byte.
 - `parse_strict_json`: análisis UTF-8 que rechaza miembros duplicados y datos sobrantes.
 - `SchemaCatalog`: registro `$id` offline de Draft 2020-12 con aserciones de formato.
-- `ConformanceRunner`: los 25 vectores válidos y 27 inválidos canónicos.
+- `ConformanceRunner`: los 26 vectores válidos y 30 inválidos canónicos.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 e identificadores de contenido `sha256:`.
 - `Ed25519Signer`: firmas sin procesar y reglas de omisión de `signature` en el nivel superior.
 - `SignedDocumentCodec`: firma explícita de nueve perfiles y verificación en seis etapas con
