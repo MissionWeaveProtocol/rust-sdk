@@ -133,7 +133,7 @@ impl Default for SchemaCatalog {
 #[cfg(test)]
 mod tests {
     use super::SchemaCatalog;
-    use crate::ProtocolBundle;
+    use crate::{ProtocolBundle, parse_strict_json};
 
     #[test]
     fn registers_all_schema_identifiers_offline() {
@@ -144,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn validates_a_known_document_and_rejects_bad_format() {
+    fn validates_known_documents_and_rejects_bad_formats() {
         let catalog = SchemaCatalog::new().expect("catalog should compile");
         let valid = ProtocolBundle::conformance("vectors/valid/presence-record.json")
             .expect("valid vector");
@@ -163,6 +163,15 @@ mod tests {
             catalog
                 .validate_bytes("presence-record.schema.json", invalid)
                 .is_err()
+        );
+
+        let command = ProtocolBundle::conformance("vectors/valid/command.json")
+            .expect("valid Command vector");
+        let mut command = parse_strict_json(command).expect("strict Command JSON");
+        command["actionId"] = serde_json::Value::String("example:%ZZ".to_owned());
+        assert!(
+            catalog.validate("command.schema.json", &command).is_err(),
+            "URI format assertions must reject malformed percent encoding"
         );
     }
 }

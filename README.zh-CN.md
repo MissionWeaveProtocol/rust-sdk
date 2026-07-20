@@ -24,7 +24,7 @@ Ed25519 工具、覆盖九种 profile 的 `SignedDocumentCodec`，以及执行 S
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) 将本 SDK 固定到协议 commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`、21 个 Schema 和 52 个符合性向量。
+`33e47ad8a7318f942de77fb72dbb054d85881b40`、21 个 Schema 和 56 个符合性向量。
 SDK 与协议独立版本化。
 
 ## 使用
@@ -117,10 +117,10 @@ cargo run --locked --bin missionweaveprotocol-conformance
 预期结果：
 
 ```text
-52/52 conformance vectors passed
+56/56 conformance vectors passed
 ```
 
-这 52 个向量仅证明结构化 Schema 行为。完整协议符合性还要求实现规范状态机、权限检查、
+这 56 个向量仅证明结构化 Schema 行为。完整协议符合性还要求实现规范状态机、权限检查、
 fencing、预算、排序、重放、交付恢复和人工批准规则。
 
 ## 公共接口
@@ -128,7 +128,7 @@ fencing、预算、排序、重放、交付恢复和人工批准规则。
 - `ProtocolBundle`：内嵌的固定信息、Schema/向量资源与逐字节摘要验证。
 - `parse_strict_json`：拒绝重复成员和尾随数据的 UTF-8 解析。
 - `SchemaCatalog`：启用格式断言的离线 Draft 2020-12 `$id` 注册表。
-- `ConformanceRunner`：全部 25 个有效和 27 个无效规范向量。
+- `ConformanceRunner`：全部 26 个有效和 30 个无效规范向量。
 - `canonical_bytes` / `canonical_sha256`：RFC 8785 与 `sha256:` 内容 ID。
 - `Ed25519Signer`：原始签名和顶层 `signature` 省略规则。
 - `SignedDocumentCodec`：显式九 profile 签名与六阶段验证，返回完整不可变证据，并使用

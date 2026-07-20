@@ -358,7 +358,7 @@ fn validate_cryptography_pin(pin: &CryptographyPin) -> Result<(), BundleError> {
         source_commit: "235aee85ba88934641822e1639e08efd2c9e29b6".into(),
         profile_id: "missionweaveprotocol.signed-document-verification.v0.1".into(),
         manifest_version: 1,
-        artifact_digest: "sha256:487e18c1ea7053432953f28d1496ae4fdb8e9d42c2eeb8e94f9b21f8cc2596a2"
+        artifact_digest: "sha256:159a4900987723537d0d110ec6724c5e1ee52854951a9c69278386d751baae08"
             .into(),
         artifact_count: 94,
         case_count: 22,
@@ -540,10 +540,10 @@ mod tests {
     fn verifies_exact_embedded_bundle() {
         let summary = ProtocolBundle::verify().expect("bundle should match its pin");
         assert_eq!(summary.schema_files, 21);
-        assert_eq!(summary.conformance_files, 53);
+        assert_eq!(summary.conformance_files, 57);
         assert_eq!(
             summary.bundle_sha256,
-            "b5590fae29ae09e8c2ec77973405878f4dcb13d23e8acdfb888d563ec770bba7"
+            "eed30aeb0a6d39575b6ab2f3121de27cef34d27dd9659ee4e5a7204ec5deeea7"
         );
     }
 
@@ -563,7 +563,7 @@ mod tests {
         assert_eq!(summary.evaluation_count, 58);
         assert_eq!(
             summary.artifact_digest,
-            "sha256:487e18c1ea7053432953f28d1496ae4fdb8e9d42c2eeb8e94f9b21f8cc2596a2"
+            "sha256:159a4900987723537d0d110ec6724c5e1ee52854951a9c69278386d751baae08"
         );
 
         let pin = ProtocolBundle::pin().expect("pin should parse");

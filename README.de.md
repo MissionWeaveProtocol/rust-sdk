@@ -28,7 +28,7 @@ einen schema-validierenden FrameCodec.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) bindet das SDK an Commit
-`6f10987627d62fb296e3490ceceb5539b1e94b70`, 21 Schemas und 52 Konformitätsvektoren. SDK und
+`33e47ad8a7318f942de77fb72dbb054d85881b40`, 21 Schemas und 56 Konformitätsvektoren. SDK und
 Protokoll werden unabhängig versioniert.
 
 ## Verwendung
@@ -125,10 +125,10 @@ cargo run --locked --bin missionweaveprotocol-conformance
 Erwartetes Ergebnis:
 
 ```text
-52/52 conformance vectors passed
+56/56 conformance vectors passed
 ```
 
-Die 52 Vektoren belegen nur das strukturelle Schemaverhalten. Vollständige Protokollkonformität
+Die 56 Vektoren belegen nur das strukturelle Schemaverhalten. Vollständige Protokollkonformität
 erfordert außerdem die normativen Zustandsautomaten, Autoritätsprüfungen, Fencing durch Epochs,
 Budgets, Reihenfolge, Replay-Schutz, Wiederherstellung der Zustellung und Regeln für menschliche
 Freigaben.
@@ -138,7 +138,7 @@ Freigaben.
 - `ProtocolBundle`: eingebetteter Pin, Schema-/Vektorressourcen und bytegenaue Digest-Prüfung.
 - `parse_strict_json`: UTF-8-Parsing, das doppelte Member und nachgestellte Daten ablehnt.
 - `SchemaCatalog`: Offline-Draft-2020-12-`$id`-Registry mit Formatprüfungen.
-- `ConformanceRunner`: alle 25 gültigen und 27 ungültigen kanonischen Vektoren.
+- `ConformanceRunner`: alle 26 gültigen und 30 ungültigen kanonischen Vektoren.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 und `sha256:`-Inhalts-IDs.
 - `Ed25519Signer`: Rohsignaturen und Regeln zum Auslassen des obersten `signature`-Members.
 - `SignedDocumentCodec`: explizite Signatur für neun Profile und sechsstufige Prüfung mit
