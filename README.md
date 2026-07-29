@@ -27,7 +27,7 @@ Ed25519 helpers, the nine-profile `SignedDocumentCodec`, and a schema-validating
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) binds this SDK to protocol commit
-[`8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a),
+[`27c9f5c80cdcc1bd2179aae6247426f59e833525`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/27c9f5c80cdcc1bd2179aae6247426f59e833525),
 21 schemas, 56 conformance vectors, and the [vendored cryptography contract](cryptography/README.md)
 with 62 evaluations. SDK and protocol releases are versioned independently.
 

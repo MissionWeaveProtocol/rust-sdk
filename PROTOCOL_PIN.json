@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/missionweaveprotocol/missionweaveprotocol",
-  "commit": "8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a",
+  "commit": "27c9f5c80cdcc1bd2179aae6247426f59e833525",
   "protocolVersion": "0.1",
   "wireNamespace": "missionweaveprotocol",
   "artifacts": {
@@ -17,7 +17,7 @@
   },
   "cryptography": {
     "path": "cryptography/manifest.json",
-    "sourceCommit": "8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a",
+    "sourceCommit": "27c9f5c80cdcc1bd2179aae6247426f59e833525",
     "profileId": "missionweaveprotocol.signed-document-verification.v0.1",
     "manifestVersion": 1,
     "artifactDigest": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3",

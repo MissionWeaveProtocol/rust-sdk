@@ -355,7 +355,7 @@ fn parse_protocol_pin(input: &[u8]) -> Result<ProtocolPin, BundleError> {
 fn validate_cryptography_pin(pin: &CryptographyPin) -> Result<(), BundleError> {
     let expected = CryptographyPin {
         path: "cryptography/manifest.json".into(),
-        source_commit: "8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a".into(),
+        source_commit: "27c9f5c80cdcc1bd2179aae6247426f59e833525".into(),
         profile_id: "missionweaveprotocol.signed-document-verification.v0.1".into(),
         manifest_version: 1,
         artifact_digest: "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
@@ -570,7 +570,7 @@ mod tests {
         assert_eq!(pin.cryptography.path, "cryptography/manifest.json");
         assert_eq!(
             pin.cryptography.source_commit,
-            "8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a"
+            "27c9f5c80cdcc1bd2179aae6247426f59e833525"
         );
         assert_eq!(
             pin.cryptography.profile_id,

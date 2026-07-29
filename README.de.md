@@ -28,7 +28,7 @@ einen schema-validierenden FrameCodec.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) bindet das SDK an Commit
-[`8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a),
+[`27c9f5c80cdcc1bd2179aae6247426f59e833525`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/27c9f5c80cdcc1bd2179aae6247426f59e833525),
 21 Schemas, 56 Konformitätsvektoren und den [mitgelieferten Kryptografie-Vertrag](cryptography/README.md)
 mit 62 Auswertungen. SDK und Protokoll werden unabhängig versioniert.
 
