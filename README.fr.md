@@ -28,7 +28,7 @@ neuf profils explicites et un FrameCodec validant les schémas.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) lie le SDK au commit
-[`70c4954b7eda5e38a1218ce5365ab2a281443dc4`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/70c4954b7eda5e38a1218ce5365ab2a281443dc4),
+[`8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/8a67bd2acdb9f0d6f7ac3a2f99a1fd01611ab74a),
 aux 21 schémas, aux 56 vecteurs de conformité et au [contrat cryptographique embarqué](cryptography/README.md)
 comprenant 62 évaluations. Les versions du SDK et du protocole sont indépendantes.
 
