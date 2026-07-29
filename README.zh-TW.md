@@ -24,8 +24,8 @@ Ed25519 工具、涵蓋九種 profile 的 `SignedDocumentCodec`，以及執行 S
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) 將本 SDK 固定到協定 commit
-`33e47ad8a7318f942de77fb72dbb054d85881b40`、21 個 Schema 與 56 個符合性向量。
-SDK 與協定分別進行版本管理。
+[`70c4954b7eda5e38a1218ce5365ab2a281443dc4`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/70c4954b7eda5e38a1218ce5365ab2a281443dc4)、
+21 個 Schema、56 個符合性向量，以及包含 62 項評估的[內嵌密碼學契約](cryptography/README.md)。SDK 與協定分別進行版本管理。
 
 ## 使用方式
 

@@ -28,8 +28,9 @@ SHA-256 コンテンツ ID、Ed25519 ヘルパー、Schema を検証する Frame
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) は SDK をプロトコル commit
-`33e47ad8a7318f942de77fb72dbb054d85881b40`、21 個の Schema、56 個の適合性ベクトルに
-固定します。SDK とプロトコルは個別にバージョン管理されます。
+[`70c4954b7eda5e38a1218ce5365ab2a281443dc4`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/70c4954b7eda5e38a1218ce5365ab2a281443dc4)、
+21 個の Schema、56 個の適合性ベクトル、および 62 件の評価を含む
+[同梱暗号契約](cryptography/README.md)に固定します。SDK とプロトコルは個別にバージョン管理されます。
 
 ## 利用
 
