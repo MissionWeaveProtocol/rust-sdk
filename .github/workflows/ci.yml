@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.85.0
         with:
           components: clippy,rustfmt
 
@@ -44,7 +44,36 @@ jobs:
       - name: Package
         run: cargo package --locked
 
+      - name: Verify packaged cryptography bundle
+        run: |
+          rust_package_metadata="$(cargo metadata --no-deps --format-version 1)"
+          rust_package_name="$(jq -r '.packages[0].name' <<<"${rust_package_metadata}")"
+          rust_package_version="$(jq -r '.packages[0].version' <<<"${rust_package_metadata}")"
+          rust_package_archive="target/package/${rust_package_name}-${rust_package_version}.crate"
+          rust_package_root="${RUNNER_TEMP}/missionweaveprotocol-crate"
+          rust_package_dir="${rust_package_root}/${rust_package_name}-${rust_package_version}"
+          rust_package_target="${RUNNER_TEMP}/missionweaveprotocol-package-target"
+          mkdir -p "${rust_package_root}"
+          test -f "${rust_package_archive}"
+          tar -xzf "${rust_package_archive}" -C "${rust_package_root}"
+          CARGO_TARGET_DIR="${rust_package_target}" cargo test --locked \
+            --manifest-path "${rust_package_dir}/Cargo.toml" \
+            --lib bundle::tests::verifies_exact_embedded_cryptography_bundle \
+            -- --exact
+          CARGO_TARGET_DIR="${rust_package_target}" cargo test --locked \
+            --manifest-path "${rust_package_dir}/Cargo.toml" \
+            --test signed_document_codec \
+            satisfies_every_vendored_cryptography_manifest_evaluation \
+            -- --exact
+
       - name: Verify installed CLI
         run: |
-          cargo install --locked --path . --root "${RUNNER_TEMP}/missionweaveprotocol-rust"
+          rust_package_metadata="$(cargo metadata --no-deps --format-version 1)"
+          rust_package_name="$(jq -r '.packages[0].name' <<<"${rust_package_metadata}")"
+          rust_package_version="$(jq -r '.packages[0].version' <<<"${rust_package_metadata}")"
+          rust_package_dir="${RUNNER_TEMP}/missionweaveprotocol-crate/${rust_package_name}-${rust_package_version}"
+          rust_package_target="${RUNNER_TEMP}/missionweaveprotocol-package-target"
+          CARGO_TARGET_DIR="${rust_package_target}" cargo install --locked \
+            --path "${rust_package_dir}" \
+            --root "${RUNNER_TEMP}/missionweaveprotocol-rust"
           "${RUNNER_TEMP}/missionweaveprotocol-rust/bin/missionweaveprotocol-conformance"
