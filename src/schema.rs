@@ -1,12 +1,38 @@
 //! Offline Draft 2020-12 schema registry and document validation.
 
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, sync::LazyLock};
 
 use jsonschema::{Draft, Registry};
-use serde_json::Value;
+use serde_json::{Value, json};
 use thiserror::Error;
 
 use crate::{ProtocolBundle, StrictJsonError, parse_strict_json};
+
+static PROTOCOL_URI_VALIDATOR: LazyLock<jsonschema::Validator> = LazyLock::new(|| {
+    jsonschema::options()
+        .with_draft(Draft::Draft202012)
+        .should_validate_formats(true)
+        .build(&json!({"type": "string", "format": "uri"}))
+        .expect("protocol URI schema must compile")
+});
+
+pub(crate) fn is_protocol_uri(value: &str) -> bool {
+    if !value.bytes().all(|byte| byte.is_ascii_graphic()) {
+        return false;
+    }
+
+    let Some((scheme, _)) = value.split_once(':') else {
+        return false;
+    };
+    let mut scheme = scheme.bytes();
+    if !scheme.next().is_some_and(|byte| byte.is_ascii_alphabetic())
+        || !scheme.all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'+' | b'-' | b'.'))
+    {
+        return false;
+    }
+
+    PROTOCOL_URI_VALIDATOR.is_valid(&Value::String(value.to_owned()))
+}
 
 /// Schema catalog construction or validation failure.
 #[derive(Debug, Error)]
@@ -91,6 +117,7 @@ impl SchemaCatalog {
         let validator = jsonschema::options()
             .with_draft(Draft::Draft202012)
             .with_registry(&self.registry)
+            .with_format("uri", is_protocol_uri)
             .with_format("date-time", crate::signed_document::is_protocol_rfc3339)
             .should_validate_formats(true)
             .build(schema)
@@ -132,7 +159,7 @@ impl Default for SchemaCatalog {
 
 #[cfg(test)]
 mod tests {
-    use super::SchemaCatalog;
+    use super::{SchemaCatalog, is_protocol_uri};
     use crate::{ProtocolBundle, parse_strict_json};
 
     #[test]
@@ -167,11 +194,52 @@ mod tests {
 
         let command = ProtocolBundle::conformance("vectors/valid/command.json")
             .expect("valid Command vector");
-        let mut command = parse_strict_json(command).expect("strict Command JSON");
-        command["actionId"] = serde_json::Value::String("example:%ZZ".to_owned());
-        assert!(
-            catalog.validate("command.schema.json", &command).is_err(),
-            "URI format assertions must reject malformed percent encoding"
-        );
+        let command = parse_strict_json(command).expect("strict Command JSON");
+        for invalid_uri in [
+            "example:%ZZ",
+            "https://例.example/path",
+            "http://example.com:abc/",
+        ] {
+            let mut invalid = command.clone();
+            invalid["actionId"] = serde_json::Value::String(invalid_uri.to_owned());
+            assert!(
+                catalog.validate("command.schema.json", &invalid).is_err(),
+                "URI format assertions must reject {invalid_uri:?}"
+            );
+        }
+
+        let mut empty_hier_part = command;
+        empty_hier_part["actionId"] = serde_json::Value::String("example:".to_owned());
+        catalog
+            .validate("command.schema.json", &empty_hier_part)
+            .expect("empty hierarchical part should remain valid");
+    }
+
+    #[test]
+    fn protocol_uri_rejects_malformed_inputs() {
+        for value in [
+            "organizations/acme",
+            "1example:value",
+            "example:trailing ",
+            "example:\n",
+            "https://例.example/path",
+            "example:%GG",
+            "https://[not-an-ip]/",
+            "http://example.com:abc/",
+            "https://[::1]:12a/path",
+        ] {
+            assert!(!is_protocol_uri(value), "{value:?} should be rejected");
+        }
+    }
+
+    #[test]
+    fn protocol_uri_accepts_empty_hier_part_and_long_values() {
+        assert!(is_protocol_uri("example:"));
+        assert!(is_protocol_uri("https://example.com:/path"));
+        assert!(is_protocol_uri("https://example.com:999999/path"));
+        assert!(is_protocol_uri("https://[::1]:/path"));
+        let long = format!("example:{}", "a".repeat(600));
+        assert!(long.len() > 512);
+        assert!(is_protocol_uri(&long));
     }
 }

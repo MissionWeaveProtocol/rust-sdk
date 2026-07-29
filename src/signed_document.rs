@@ -15,7 +15,10 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use crate::{CanonicalError, SchemaCatalog, SchemaError, canonical_bytes, parse_strict_json};
+use crate::{
+    CanonicalError, SchemaCatalog, SchemaError, canonical_bytes, parse_strict_json,
+    schema::is_protocol_uri,
+};
 
 /// The nine signature-required protocol document profiles.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -1359,6 +1362,21 @@ struct NormalizedBinding {
     revoked_at: Option<ParsedBoundary>,
 }
 
+fn require_protocol_uri(
+    value: &str,
+    stage: VerificationStage,
+    label: &str,
+) -> Result<(), VerificationError> {
+    if is_protocol_uri(value) {
+        Ok(())
+    } else {
+        Err(VerificationError::at(
+            stage,
+            format!("{label} is not a protocol URI"),
+        ))
+    }
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "the normative key-resolution stage is kept sequential so first-failure ordering remains auditable"
@@ -1379,6 +1397,11 @@ fn resolve_key(
     )?;
     let organization_id = required_string(
         registry.get("organizationId"),
+        VerificationStage::KeyResolution,
+        "Registry organizationId",
+    )?;
+    require_protocol_uri(
+        organization_id,
         VerificationStage::KeyResolution,
         "Registry organizationId",
     )?;
@@ -1417,8 +1440,13 @@ fn resolve_key(
             binding.get("keyId"),
             VerificationStage::KeyResolution,
             &format!("{label}.keyId"),
-        )?
-        .to_owned();
+        )?;
+        require_protocol_uri(
+            key_id,
+            VerificationStage::KeyResolution,
+            &format!("{label}.keyId"),
+        )?;
+        let key_id = key_id.to_owned();
         let principal = parse_principal(
             binding.get("principal").ok_or_else(|| {
                 VerificationError::at(
@@ -1428,6 +1456,11 @@ fn resolve_key(
             })?,
             VerificationStage::KeyResolution,
             &format!("{label}.principal"),
+        )?;
+        require_protocol_uri(
+            principal.id(),
+            VerificationStage::KeyResolution,
+            &format!("{label}.principal.id"),
         )?;
         let algorithm = required_string(
             binding.get("algorithm"),

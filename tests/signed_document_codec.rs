@@ -268,6 +268,134 @@ fn signing_rejects_a_non_prime_order_signature_from_the_adapter() {
     assert_eq!(calls.get(), 1);
 }
 
+fn registry_binding_by_key_id<'a>(registry: &'a mut Value, key_id: &str) -> &'a mut Value {
+    registry["bindings"]
+        .as_array_mut()
+        .expect("Registry bindings")
+        .iter_mut()
+        .find(|binding| binding["keyId"].as_str() == Some(key_id))
+        .unwrap_or_else(|| panic!("Registry binding {key_id:?} was not found"))
+}
+
+fn assert_registry_identifier_rejected(
+    case: &str,
+    kind: SignedDocumentKind,
+    document_path: &str,
+    diagnostic_suffix: &str,
+    mutate: impl FnOnce(&mut Value),
+) {
+    let mut registry = read_json("cryptography/keys/registry-valid.json");
+    mutate(&mut registry);
+    let resolver = FixtureKeyResolver {
+        registry: serde_json::to_vec(&registry).expect("Registry JSON"),
+    };
+    let raw = read_bytes(document_path);
+
+    let Err(error) = SignedDocumentCodec::new()
+        .expect("codec")
+        .verify(kind, &raw, &resolver)
+    else {
+        panic!("{case}: malformed Registry identifier was accepted");
+    };
+
+    assert_eq!(error.diagnostic().stage(), VerificationStage::KeyResolution);
+    assert_eq!(error.wire_code(), WireErrorCode::AuthInvalidSignature);
+    assert!(
+        error.diagnostic().reason().ends_with(diagnostic_suffix),
+        "{case}: unexpected diagnostic: {}",
+        error.diagnostic().reason()
+    );
+    assert_eq!(error.to_string(), "AUTH_INVALID_SIGNATURE");
+}
+
+#[test]
+fn registry_identifier_relative_organization_id_is_rejected() {
+    assert_registry_identifier_rejected(
+        "relative organizationId",
+        SignedDocumentKind::Command,
+        "cryptography/vectors/signed-documents/valid/command.json",
+        "Registry organizationId is not a protocol URI",
+        |registry| {
+            registry["organizationId"] = Value::String("organizations/acme".to_owned());
+        },
+    );
+}
+
+#[test]
+fn registry_identifier_selected_service_iri_is_rejected() {
+    assert_registry_identifier_rejected(
+        "selected service Principal IRI",
+        SignedDocumentKind::AgentCard,
+        "cryptography/vectors/signed-documents/valid/agent-card.json",
+        ".principal.id is not a protocol URI",
+        |registry| {
+            registry_binding_by_key_id(
+                registry,
+                "urn:missionweaveprotocol:key:crypto-vector-organization-registry",
+            )["principal"]["id"] = Value::String("https://例.example/registry".to_owned());
+        },
+    );
+}
+
+#[test]
+fn registry_identifier_unrelated_principal_malformed_percent_is_rejected() {
+    assert_registry_identifier_rejected(
+        "unrelated Principal malformed percent escape",
+        SignedDocumentKind::Command,
+        "cryptography/vectors/signed-documents/valid/command.json",
+        ".principal.id is not a protocol URI",
+        |registry| {
+            registry_binding_by_key_id(
+                registry,
+                "urn:missionweaveprotocol:key:crypto-vector-developer-one",
+            )["principal"]["id"] = Value::String("urn:missionweaveprotocol:agent:%GG".to_owned());
+        },
+    );
+}
+
+#[test]
+fn registry_identifier_unrelated_key_id_trailing_line_feed_is_rejected() {
+    assert_registry_identifier_rejected(
+        "unrelated keyId trailing line feed",
+        SignedDocumentKind::Command,
+        "cryptography/vectors/signed-documents/valid/command.json",
+        ".keyId is not a protocol URI",
+        |registry| {
+            let binding = registry_binding_by_key_id(
+                registry,
+                "urn:missionweaveprotocol:key:crypto-vector-developer-one",
+            );
+            binding["keyId"] = Value::String(format!(
+                "{}\n",
+                binding["keyId"].as_str().expect("binding keyId")
+            ));
+        },
+    );
+}
+
+#[test]
+fn registry_identifier_does_not_apply_fixture_only_length_limit() {
+    let raw = read_bytes("cryptography/vectors/signed-documents/valid/command.json");
+    let codec = SignedDocumentCodec::new().expect("codec");
+
+    for organization_id in [
+        "example:".to_owned(),
+        format!("example:{}", "a".repeat(600)),
+    ] {
+        let mut registry = read_json("cryptography/keys/registry-valid.json");
+        registry["organizationId"] = Value::String(organization_id.clone());
+        let resolver = FixtureKeyResolver {
+            registry: serde_json::to_vec(&registry).expect("Registry JSON"),
+        };
+
+        let verified = codec
+            .verify(SignedDocumentKind::Command, &raw, &resolver)
+            .expect("protocol URI should remain valid");
+
+        assert_eq!(verified.resolved_key().organization_id(), organization_id);
+    }
+}
+
 #[test]
 #[allow(
     clippy::too_many_lines,
@@ -429,7 +557,7 @@ fn satisfies_every_vendored_cryptography_manifest_evaluation() {
 
     assert_eq!(
         (cases.len(), evaluations, completed, rejected),
-        (22, 58, 12, 46)
+        (22, 62, 12, 50)
     );
 }
 
