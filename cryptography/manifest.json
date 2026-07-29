@@ -110,6 +110,11 @@
       "sha256": "sha256:25e1406976db4892c544254f76bf30884951f259145b73ec78a98ac3591100d5"
     },
     {
+      "path": "cryptography/keys/registry-organization-id-relative-reference.json",
+      "byteLength": 2852,
+      "sha256": "sha256:6ee9249ace84340dc5729dbf4969f1f3dbd8294c06f47dd9e8fe0d7edbbeb39d"
+    },
+    {
       "path": "cryptography/keys/registry-public-key-cross-principal-reuse.json",
       "byteLength": 3416,
       "sha256": "sha256:2664b31c0116a87e430af8c12bcaaa6c810cae9166860c5af82b5c13bba766db"
@@ -175,6 +180,11 @@
       "sha256": "sha256:c41594bde6aee7814cca44e8936c6769f1732f361f1c6fdb8f890419f5e595a1"
     },
     {
+      "path": "cryptography/keys/registry-selected-service-principal-id-iri-only.json",
+      "byteLength": 2877,
+      "sha256": "sha256:423a9a089f04af9f2c787e178c386cfa9d27ee9f006a5dea071f1e7dcd942d47"
+    },
+    {
       "path": "cryptography/keys/registry-timestamp-casing-and-offset-bounds.json",
       "byteLength": 2881,
       "sha256": "sha256:93d6928ee3874431812b585d1e1b968eac5d72463fc9dbad822d9acb6ce4fa55"
@@ -183,6 +193,16 @@
       "path": "cryptography/keys/registry-timestamp-fractional-precision.json",
       "byteLength": 2896,
       "sha256": "sha256:353b63802b55861f8c96d2c745699e732fdc5668cc5d5ada79b5df096bd95e01"
+    },
+    {
+      "path": "cryptography/keys/registry-unrelated-key-id-trailing-line-feed.json",
+      "byteLength": 2878,
+      "sha256": "sha256:0fc621bfa6054ad1caefd7c8d78b5411950ec7ad4ea001f84fff808e2afd29a0"
+    },
+    {
+      "path": "cryptography/keys/registry-unrelated-principal-id-malformed-percent.json",
+      "byteLength": 2879,
+      "sha256": "sha256:0ed1a5e8c96dea66751f2ebe675e35e7cbf9f9496d79332466e2b6ea1542093a"
     },
     {
       "path": "cryptography/keys/registry-valid-until-equality.json",
@@ -237,12 +257,12 @@
     {
       "path": "cryptography/manifest.schema.json",
       "byteLength": 14795,
-      "sha256": "sha256:8ce33b8d69e63bc0d905ce833043aa13cac84fe56980b2e19c6804fd70cab16e"
+      "sha256": "sha256:ebd1efcb9ff0b43b692fdd66f3e125fde922c8fc615ded5f96d5f0e13724a7c2"
     },
     {
       "path": "cryptography/registry-fixture.schema.json",
-      "byteLength": 2575,
-      "sha256": "sha256:e3e7598389fd2d07985858f8dfec4b66d680ea00e7ff5f0a2ec13bba59632ba6"
+      "byteLength": 2544,
+      "sha256": "sha256:17b62c9c23dd6393f819bfba7e64fed8663e805978ffa6e2a9615e4eebb0d171"
     },
     {
       "path": "cryptography/signing-key-fixture.schema.json",
@@ -1128,6 +1148,70 @@
         {
           "profileId": "command",
           "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-organization-id-relative-reference.json",
+          "fault": {
+            "id": "registry-organization-id-relative-reference",
+            "basis": {
+              "caseId": "accept.command.golden",
+              "profileId": "command"
+            }
+          },
+          "expect": {
+            "stage": "key-resolution",
+            "wireCode": "AUTH_INVALID_SIGNATURE"
+          }
+        },
+        {
+          "profileId": "agent-card",
+          "document": "cryptography/vectors/signed-documents/valid/agent-card.json",
+          "registry": "cryptography/keys/registry-selected-service-principal-id-iri-only.json",
+          "fault": {
+            "id": "registry-selected-service-principal-id-iri-only",
+            "basis": {
+              "caseId": "accept.profile-matrix.all-nine",
+              "profileId": "agent-card"
+            }
+          },
+          "expect": {
+            "stage": "key-resolution",
+            "wireCode": "AUTH_INVALID_SIGNATURE"
+          }
+        },
+        {
+          "profileId": "command",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-unrelated-key-id-trailing-line-feed.json",
+          "fault": {
+            "id": "registry-unrelated-key-id-trailing-line-feed",
+            "basis": {
+              "caseId": "accept.command.golden",
+              "profileId": "command"
+            }
+          },
+          "expect": {
+            "stage": "key-resolution",
+            "wireCode": "AUTH_INVALID_SIGNATURE"
+          }
+        },
+        {
+          "profileId": "command",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-unrelated-principal-id-malformed-percent.json",
+          "fault": {
+            "id": "registry-unrelated-principal-id-malformed-percent",
+            "basis": {
+              "caseId": "accept.command.golden",
+              "profileId": "command"
+            }
+          },
+          "expect": {
+            "stage": "key-resolution",
+            "wireCode": "AUTH_INVALID_SIGNATURE"
+          }
+        },
+        {
+          "profileId": "command",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
           "registry": "cryptography/keys/registry-revoked-at-equality.json",
           "fault": {
             "id": "revoked-at-equality",
@@ -1698,5 +1782,5 @@
       ]
     }
   ],
-  "artifactDigest": "sha256:159a4900987723537d0d110ec6724c5e1ee52854951a9c69278386d751baae08"
+  "artifactDigest": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
 }

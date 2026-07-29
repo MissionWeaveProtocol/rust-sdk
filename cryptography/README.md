@@ -5,7 +5,7 @@ Signed Document Verification Profile in Section 6.4 of the specification. It cov
 signature-required schema profiles with 22 cases: four expected-accept cases and eighteen
 expected-reject cases. The all-profile case evaluates one document for each profile, and the
 failure-matrix cases cover multiple isolated faults without increasing the 22-case contract. The
-suite therefore contains 58 evaluations in total: 12 expected to complete and 46 expected to be
+suite therefore contains 62 evaluations in total: 12 expected to complete and 50 expected to be
 rejected.
 
 The nine schema profiles are Agent Card, Approval, Artifact manifest, Command, Context Package,
@@ -25,6 +25,11 @@ negative-zero, and noncanonical public-key encodings at key resolution. Signatur
 coverage independently rejects off-curve, negative-zero, non-identity small-order, mixed-order,
 and noncanonical `R` encodings, including the exact `y = p` canonical boundary, and rejects
 `S = L`; identity `R` remains permitted and is exercised through the final signature equation.
+
+Registry identifier coverage rejects a relative `organizationId`, a selected service Principal ID
+containing raw IRI-only characters, a malformed percent escape in an unrelated Principal ID, and
+a trailing line feed in an unrelated binding `keyId`. All four faults fail at stage 4 before key
+selection with `AUTH_INVALID_SIGNATURE`.
 
 The semantic verification stages are:
 
@@ -58,10 +63,12 @@ top-level digest transitively bind every declared artifact.
 The manifest's `fixtureSchemas` object names language-neutral JSON Schemas for Registry fixtures
 and test-only signing-key fixtures. An implementation MUST validate fixture structure against the
 named Schema before evaluating a case. The Registry fixture Schema intentionally describes the
-container shape rather than asserting that every binding is semantically valid: negative cases
-depend on structurally readable values that stages 3 or 4 must reject. Implementations MUST still
-apply every semantic check in the declared order and MUST NOT normalize an invalid fixture into a
-valid value.
+container shape and a 1–512 character test-artifact bound rather than asserting that every binding
+is semantically valid: negative cases depend on structurally readable values that stages 3 or 4
+must reject. Runtime validation owns URI semantics for every Registry `organizationId`, `keyId`,
+and Principal `id`, performs no normalization, and applies no 512-character runtime limit.
+Implementations MUST apply every semantic check in the declared order and MUST NOT normalize an
+invalid fixture into a valid value.
 
 The files under `keys/` are deterministic, test-only fixtures. The signing-key fixtures expose test
 seeds so implementations can reproduce the positive signing cases; they MUST NOT be used outside

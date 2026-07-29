@@ -355,14 +355,14 @@ fn parse_protocol_pin(input: &[u8]) -> Result<ProtocolPin, BundleError> {
 fn validate_cryptography_pin(pin: &CryptographyPin) -> Result<(), BundleError> {
     let expected = CryptographyPin {
         path: "cryptography/manifest.json".into(),
-        source_commit: "235aee85ba88934641822e1639e08efd2c9e29b6".into(),
+        source_commit: "70c4954b7eda5e38a1218ce5365ab2a281443dc4".into(),
         profile_id: "missionweaveprotocol.signed-document-verification.v0.1".into(),
         manifest_version: 1,
-        artifact_digest: "sha256:159a4900987723537d0d110ec6724c5e1ee52854951a9c69278386d751baae08"
+        artifact_digest: "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
             .into(),
-        artifact_count: 94,
+        artifact_count: 98,
         case_count: 22,
-        evaluation_count: 58,
+        evaluation_count: 62,
     };
     if pin != &expected {
         return Err(BundleError::InvalidCryptographyPin(
@@ -558,19 +558,19 @@ mod tests {
     fn verifies_exact_embedded_cryptography_bundle() {
         let summary = ProtocolBundle::verify_cryptography()
             .expect("cryptography bundle should match its independent pin");
-        assert_eq!(summary.artifact_count, 94);
+        assert_eq!(summary.artifact_count, 98);
         assert_eq!(summary.case_count, 22);
-        assert_eq!(summary.evaluation_count, 58);
+        assert_eq!(summary.evaluation_count, 62);
         assert_eq!(
             summary.artifact_digest,
-            "sha256:159a4900987723537d0d110ec6724c5e1ee52854951a9c69278386d751baae08"
+            "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
         );
 
         let pin = ProtocolBundle::pin().expect("pin should parse");
         assert_eq!(pin.cryptography.path, "cryptography/manifest.json");
         assert_eq!(
             pin.cryptography.source_commit,
-            "235aee85ba88934641822e1639e08efd2c9e29b6"
+            "70c4954b7eda5e38a1218ce5365ab2a281443dc4"
         );
         assert_eq!(
             pin.cryptography.profile_id,
