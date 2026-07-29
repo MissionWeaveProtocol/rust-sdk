@@ -31,10 +31,10 @@ fn main() -> ExitCode {
         if arguments.verbose || !result.passed() {
             let state = if result.passed() { "PASS" } else { "FAIL" };
             println!("{state}\t{}", result.name);
-            if let Some(error) = &result.error
-                && !result.passed()
-            {
-                println!("  {error}");
+            if !result.passed() {
+                if let Some(error) = &result.error {
+                    println!("  {error}");
+                }
             }
         }
     }
