@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://missionweaveprotocol.dev/schemas/0.1/first-admission-record.schema.json",
+  "title": "MissionWeaveProtocol 0.1 First-Admission Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "admissionRecordId",
+    "organizationId",
+    "documentKind",
+    "signingHash",
+    "keyId",
+    "principal",
+    "trustedAcceptedAt",
+    "acceptedBy"
+  ],
+  "properties": {
+    "protocolVersion": {
+      "$ref": "common.schema.json#/$defs/protocolVersion"
+    },
+    "admissionRecordId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "organizationId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "documentKind": {
+      "enum": [
+        "agent-card",
+        "approval",
+        "artifact",
+        "command",
+        "context-package",
+        "event",
+        "evidence",
+        "extension-profile",
+        "group-snapshot"
+      ]
+    },
+    "signingHash": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "keyId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "principal": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "trustedAcceptedAt": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "acceptedBy": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/actor"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "service"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

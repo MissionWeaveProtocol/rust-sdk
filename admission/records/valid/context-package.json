@@ -1,0 +1,17 @@
+{
+  "protocolVersion": "0.1",
+  "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-context-package",
+  "organizationId": "urn:missionweaveprotocol:organization:acme",
+  "documentKind": "context-package",
+  "signingHash": "sha256:1875f36ffe7688512b3441d4381140336cc9a97a4a3250e5e4470f449c16bcf2",
+  "keyId": "urn:missionweaveprotocol:key:crypto-vector-rfc8032-1",
+  "principal": {
+    "type": "agent",
+    "id": "urn:missionweaveprotocol:agent:crypto-vector-coordinator"
+  },
+  "trustedAcceptedAt": "2026-07-15T01:05:00Z",
+  "acceptedBy": {
+    "type": "service",
+    "id": "urn:missionweaveprotocol:service:admission"
+  }
+}

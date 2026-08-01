@@ -1,0 +1,17 @@
+{
+  "protocolVersion": "0.1",
+  "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-group-snapshot",
+  "organizationId": "urn:missionweaveprotocol:organization:acme",
+  "documentKind": "group-snapshot",
+  "signingHash": "sha256:061f1d6c35ce4ab44c9c7432f016f241cd0c4d10695deffde7ff0a534c02c47b",
+  "keyId": "urn:missionweaveprotocol:key:crypto-vector-group-authority",
+  "principal": {
+    "type": "service",
+    "id": "urn:missionweaveprotocol:service:group-authority"
+  },
+  "trustedAcceptedAt": "2026-07-15T07:05:00Z",
+  "acceptedBy": {
+    "type": "service",
+    "id": "urn:missionweaveprotocol:service:admission"
+  }
+}

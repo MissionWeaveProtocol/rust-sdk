@@ -44,7 +44,7 @@ jobs:
       - name: Package
         run: cargo package --locked
 
-      - name: Verify packaged cryptography bundle
+      - name: Verify packaged protocol bundles
         run: |
           rust_package_metadata="$(cargo metadata --no-deps --format-version 1)"
           rust_package_name="$(jq -r '.packages[0].name' <<<"${rust_package_metadata}")"
@@ -65,6 +65,16 @@ jobs:
             --test signed_document_codec \
             satisfies_every_vendored_cryptography_manifest_evaluation \
             -- --exact
+          CARGO_TARGET_DIR="${rust_package_target}" cargo test --locked \
+            --manifest-path "${rust_package_dir}/Cargo.toml" \
+            --lib bundle::tests::verifies_exact_embedded_admission_bundle \
+            -- --exact
+          CARGO_TARGET_DIR="${rust_package_target}" cargo test --locked \
+            --manifest-path "${rust_package_dir}/Cargo.toml" \
+            --test admission \
+            satisfies_all_vendored_admission_manifest_evaluations \
+            -- --exact
+          scripts/smoke_external_consumer.sh "${rust_package_dir}"
 
       - name: Verify installed CLI
         run: |

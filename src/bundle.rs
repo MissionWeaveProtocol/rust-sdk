@@ -13,6 +13,7 @@ use crate::{canonical::canonical_sha256, strict_json::parse_strict_json};
 static SCHEMAS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/schemas");
 static CONFORMANCE: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/conformance");
 static CRYPTOGRAPHY: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/cryptography");
+static ADMISSION: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/admission");
 const PIN_BYTES: &[u8] = include_bytes!("../PROTOCOL_PIN.json");
 
 /// Exact protocol source and content digests bundled with the SDK.
@@ -32,6 +33,8 @@ pub struct ProtocolPin {
     pub artifacts: ArtifactPins,
     /// Independent signed-document cryptography bundle pin.
     pub cryptography: CryptographyPin,
+    /// Independent First-Admission and historical-trust bundle pin.
+    pub admission: AdmissionPin,
     /// Digest covering all schema and conformance JSON files.
     pub bundle_sha256: String,
 }
@@ -56,6 +59,31 @@ pub struct CryptographyPin {
     /// Number of cryptography cases.
     pub case_count: usize,
     /// Number of independently evaluated case entries.
+    pub evaluation_count: usize,
+}
+
+/// Independent First-Admission and historical-trust bundle pin.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
+pub struct AdmissionPin {
+    /// Repository-relative Admission manifest path.
+    pub path: String,
+    /// Protocol commit that published the Admission bundle.
+    pub source_commit: String,
+    /// First-Admission and historical-trust profile identifier.
+    pub profile_id: String,
+    /// Admission manifest format version.
+    pub manifest_version: u64,
+    /// Cryptography digest required by the Admission bundle.
+    pub cryptography_artifact_digest: String,
+    /// RFC 8785 digest of the manifest without `artifactDigest`.
+    pub artifact_digest: String,
+    /// Number of digest-protected artifacts.
+    pub artifact_count: usize,
+    /// Number of Admission cases.
+    pub case_count: usize,
+    /// Number of independently evaluated entries.
     pub evaluation_count: usize,
 }
 
@@ -105,6 +133,27 @@ pub struct CryptographyBundleSummary {
     pub artifact_digest: String,
 }
 
+/// Verified facts about the independent First-Admission and historical-trust bundle.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AdmissionBundleSummary {
+    /// Protocol commit that published the Admission bundle.
+    pub source_commit: String,
+    /// First-Admission and historical-trust profile identifier.
+    pub profile_id: String,
+    /// Admission manifest format version.
+    pub manifest_version: u64,
+    /// Cryptography digest required by the Admission bundle.
+    pub cryptography_artifact_digest: String,
+    /// Number of digest-protected artifacts.
+    pub artifact_count: usize,
+    /// Number of Admission cases.
+    pub case_count: usize,
+    /// Number of independently evaluated entries.
+    pub evaluation_count: usize,
+    /// RFC 8785 digest of the manifest without `artifactDigest`.
+    pub artifact_digest: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CryptographyManifest {
@@ -127,6 +176,24 @@ struct CryptographyArtifact {
 #[derive(Debug, Deserialize)]
 struct CryptographyCase {
     evaluations: Vec<Value>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AdmissionManifest {
+    manifest_version: u64,
+    profile_id: String,
+    protocol_version: String,
+    artifact_digest: String,
+    cryptography: AdmissionCryptographyReference,
+    artifacts: Vec<CryptographyArtifact>,
+    cases: Vec<CryptographyCase>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AdmissionCryptographyReference {
+    artifact_digest: String,
 }
 
 /// Protocol bundle verification failure.
@@ -180,6 +247,38 @@ pub enum BundleError {
     /// A manifest artifact digest differs from its declaration.
     #[error("cryptography artifact `{path}` digest is {actual}; expected {expected}")]
     CryptographyArtifactDigest {
+        /// Repository-relative artifact path.
+        path: String,
+        /// Declared `sha256:` identifier.
+        expected: String,
+        /// Digest of the embedded bytes.
+        actual: String,
+    },
+    /// The independent Admission pin is incomplete or malformed.
+    #[error("embedded Admission pin is invalid: {0}")]
+    InvalidAdmissionPin(String),
+    /// The independent Admission manifest is not strict JSON or has invalid fields.
+    #[error("embedded Admission manifest is invalid: {0}")]
+    InvalidAdmissionManifest(String),
+    /// An Admission manifest artifact path escapes its approved embedded roots.
+    #[error("Admission manifest contains unsafe artifact path `{0}`")]
+    UnsafeAdmissionArtifactPath(String),
+    /// An Admission manifest artifact is absent from the embedded bundle.
+    #[error("embedded Admission artifact `{0}` is missing")]
+    MissingAdmissionArtifact(String),
+    /// An Admission artifact byte length differs from its declaration.
+    #[error("Admission artifact `{path}` contains {actual} bytes; expected {expected}")]
+    AdmissionByteLength {
+        /// Repository-relative artifact path.
+        path: String,
+        /// Declared byte length.
+        expected: usize,
+        /// Embedded byte length.
+        actual: usize,
+    },
+    /// An Admission artifact digest differs from its declaration.
+    #[error("Admission artifact `{path}` digest is {actual}; expected {expected}")]
+    AdmissionArtifactDigest {
         /// Repository-relative artifact path.
         path: String,
         /// Declared `sha256:` identifier.
@@ -308,6 +407,88 @@ impl ProtocolBundle {
         })
     }
 
+    /// Verify the independent Admission manifest and every declared artifact.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`BundleError`] when the manifest, pin, cryptography binding, count, path, byte
+    /// length, or digest is invalid.
+    pub fn verify_admission() -> Result<AdmissionBundleSummary, BundleError> {
+        let pin = Self::pin()?;
+        validate_admission_pin(&pin.admission)?;
+        if pin.admission.cryptography_artifact_digest != pin.cryptography.artifact_digest {
+            return Err(BundleError::InvalidAdmissionPin(
+                "cryptography digest does not match the cryptography pin".into(),
+            ));
+        }
+        let manifest_bytes = embedded_artifact(&pin.admission.path)
+            .ok_or_else(|| BundleError::MissingAdmissionArtifact(pin.admission.path.clone()))?;
+        let mut manifest_value = parse_strict_json(manifest_bytes)
+            .map_err(|error| BundleError::InvalidAdmissionManifest(error.to_string()))?;
+        let manifest: AdmissionManifest = serde_json::from_value(manifest_value.clone())
+            .map_err(|error| BundleError::InvalidAdmissionManifest(error.to_string()))?;
+        verify_admission_metadata(&pin, &manifest)?;
+
+        let mut seen = HashSet::with_capacity(manifest.artifacts.len());
+        for artifact in &manifest.artifacts {
+            validate_admission_artifact_path(&artifact.path)?;
+            if !seen.insert(artifact.path.as_str()) {
+                return Err(BundleError::InvalidAdmissionManifest(format!(
+                    "duplicate artifact path `{}`",
+                    artifact.path
+                )));
+            }
+            let contents = embedded_artifact(&artifact.path)
+                .ok_or_else(|| BundleError::MissingAdmissionArtifact(artifact.path.clone()))?;
+            if contents.len() != artifact.byte_length {
+                return Err(BundleError::AdmissionByteLength {
+                    path: artifact.path.clone(),
+                    expected: artifact.byte_length,
+                    actual: contents.len(),
+                });
+            }
+            let actual = sha256_identifier(contents);
+            if actual != artifact.sha256 {
+                return Err(BundleError::AdmissionArtifactDigest {
+                    path: artifact.path.clone(),
+                    expected: artifact.sha256.clone(),
+                    actual,
+                });
+            }
+        }
+
+        let object = manifest_value.as_object_mut().ok_or_else(|| {
+            BundleError::InvalidAdmissionManifest("top-level value must be an object".into())
+        })?;
+        object.remove("artifactDigest").ok_or_else(|| {
+            BundleError::InvalidAdmissionManifest("missing artifactDigest".into())
+        })?;
+        let actual_digest = canonical_sha256(&manifest_value)
+            .map_err(|error| BundleError::InvalidAdmissionManifest(error.to_string()))?;
+        if actual_digest != pin.admission.artifact_digest {
+            return Err(BundleError::Digest {
+                tree: "Admission manifest",
+                expected: pin.admission.artifact_digest,
+                actual: actual_digest,
+            });
+        }
+
+        Ok(AdmissionBundleSummary {
+            source_commit: pin.admission.source_commit,
+            profile_id: pin.admission.profile_id,
+            manifest_version: pin.admission.manifest_version,
+            cryptography_artifact_digest: pin.admission.cryptography_artifact_digest,
+            artifact_count: manifest.artifacts.len(),
+            case_count: manifest.cases.len(),
+            evaluation_count: manifest
+                .cases
+                .iter()
+                .map(|test_case| test_case.evaluations.len())
+                .sum(),
+            artifact_digest: manifest.artifact_digest,
+        })
+    }
+
     /// Read one embedded schema by its repository-relative file name.
     #[must_use]
     pub fn schema(name: &str) -> Option<&'static [u8]> {
@@ -344,6 +525,15 @@ impl ProtocolBundle {
         }
         CRYPTOGRAPHY.get_file(Path::new(path)).map(File::contents)
     }
+
+    /// Read one embedded Admission resource by its path below `admission/`.
+    #[must_use]
+    pub fn admission(path: &str) -> Option<&'static [u8]> {
+        if !safe_relative_resource_path(path) {
+            return None;
+        }
+        ADMISSION.get_file(Path::new(path)).map(File::contents)
+    }
 }
 
 fn parse_protocol_pin(input: &[u8]) -> Result<ProtocolPin, BundleError> {
@@ -355,7 +545,7 @@ fn parse_protocol_pin(input: &[u8]) -> Result<ProtocolPin, BundleError> {
 fn validate_cryptography_pin(pin: &CryptographyPin) -> Result<(), BundleError> {
     let expected = CryptographyPin {
         path: "cryptography/manifest.json".into(),
-        source_commit: "27c9f5c80cdcc1bd2179aae6247426f59e833525".into(),
+        source_commit: "f7e70a72c76bbeb5014c186cd820aac2112f0dde".into(),
         profile_id: "missionweaveprotocol.signed-document-verification.v0.1".into(),
         manifest_version: 1,
         artifact_digest: "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
@@ -366,6 +556,28 @@ fn validate_cryptography_pin(pin: &CryptographyPin) -> Result<(), BundleError> {
     };
     if pin != &expected {
         return Err(BundleError::InvalidCryptographyPin(
+            "entry does not match the published bundle".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_admission_pin(pin: &AdmissionPin) -> Result<(), BundleError> {
+    let expected = AdmissionPin {
+        path: "admission/manifest.json".into(),
+        source_commit: "f7e70a72c76bbeb5014c186cd820aac2112f0dde".into(),
+        profile_id: "missionweaveprotocol.first-admission-historical-trust.v0.1".into(),
+        manifest_version: 1,
+        cryptography_artifact_digest:
+            "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3".into(),
+        artifact_digest: "sha256:39971bfafb68ef6c18f9026220cccc4f023fd4d5c8074f8ff0276cb1129cd0a0"
+            .into(),
+        artifact_count: 19,
+        case_count: 5,
+        evaluation_count: 30,
+    };
+    if pin != &expected {
+        return Err(BundleError::InvalidAdmissionPin(
             "entry does not match the published bundle".into(),
         ));
     }
@@ -415,6 +627,50 @@ fn verify_cryptography_metadata(
     Ok(())
 }
 
+fn verify_admission_metadata(
+    pin: &ProtocolPin,
+    manifest: &AdmissionManifest,
+) -> Result<(), BundleError> {
+    let admission = &pin.admission;
+    if manifest.manifest_version != admission.manifest_version
+        || manifest.profile_id != admission.profile_id
+        || manifest.protocol_version != pin.protocol_version
+        || manifest.artifact_digest != admission.artifact_digest
+        || manifest.cryptography.artifact_digest != admission.cryptography_artifact_digest
+    {
+        return Err(BundleError::InvalidAdmissionManifest(
+            "identity does not match PROTOCOL_PIN.json".into(),
+        ));
+    }
+    if manifest.artifacts.len() != admission.artifact_count {
+        return Err(BundleError::FileCount {
+            tree: "Admission artifacts",
+            expected: admission.artifact_count,
+            actual: manifest.artifacts.len(),
+        });
+    }
+    if manifest.cases.len() != admission.case_count {
+        return Err(BundleError::FileCount {
+            tree: "Admission cases",
+            expected: admission.case_count,
+            actual: manifest.cases.len(),
+        });
+    }
+    let evaluations = manifest
+        .cases
+        .iter()
+        .map(|test_case| test_case.evaluations.len())
+        .sum::<usize>();
+    if evaluations != admission.evaluation_count {
+        return Err(BundleError::FileCount {
+            tree: "Admission evaluations",
+            expected: admission.evaluation_count,
+            actual: evaluations,
+        });
+    }
+    Ok(())
+}
+
 fn validate_cryptography_artifact_path(path: &str) -> Result<(), BundleError> {
     if !safe_relative_resource_path(path)
         || path == "cryptography/README.md"
@@ -422,6 +678,17 @@ fn validate_cryptography_artifact_path(path: &str) -> Result<(), BundleError> {
         || !(path.starts_with("cryptography/") || path.starts_with("schemas/"))
     {
         return Err(BundleError::UnsafeArtifactPath(path.into()));
+    }
+    Ok(())
+}
+
+fn validate_admission_artifact_path(path: &str) -> Result<(), BundleError> {
+    if !safe_relative_resource_path(path)
+        || path == "admission/README.md"
+        || path == "admission/manifest.json"
+        || !(path.starts_with("admission/") || path.starts_with("schemas/"))
+    {
+        return Err(BundleError::UnsafeAdmissionArtifactPath(path.into()));
     }
     Ok(())
 }
@@ -444,6 +711,9 @@ fn embedded_artifact(path: &str) -> Option<&'static [u8]> {
     }
     if let Some(path) = path.strip_prefix("schemas/") {
         return SCHEMAS.get_file(Path::new(path)).map(File::contents);
+    }
+    if let Some(path) = path.strip_prefix("admission/") {
+        return ADMISSION.get_file(Path::new(path)).map(File::contents);
     }
     None
 }
@@ -520,8 +790,8 @@ fn tree_digest(files: &[(String, &'static [u8])]) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        ProtocolBundle, parse_protocol_pin, validate_cryptography_artifact_path,
-        validate_cryptography_pin,
+        ProtocolBundle, parse_protocol_pin, validate_admission_artifact_path,
+        validate_admission_pin, validate_cryptography_artifact_path, validate_cryptography_pin,
     };
 
     #[test]
@@ -539,19 +809,22 @@ mod tests {
     #[test]
     fn verifies_exact_embedded_bundle() {
         let summary = ProtocolBundle::verify().expect("bundle should match its pin");
-        assert_eq!(summary.schema_files, 21);
-        assert_eq!(summary.conformance_files, 57);
+        assert_eq!(summary.schema_files, 22);
+        assert_eq!(summary.conformance_files, 59);
         assert_eq!(
             summary.bundle_sha256,
-            "eed30aeb0a6d39575b6ab2f3121de27cef34d27dd9659ee4e5a7204ec5deeea7"
+            "c95fc8f8334947dacf51a2c6e84d9b13f5b39b7d3827591569a1e2c5acfe47d7"
         );
     }
 
     #[test]
     fn exposes_runtime_resources() {
         assert!(ProtocolBundle::schema("mission.schema.json").is_some());
+        assert!(ProtocolBundle::schema("first-admission-record.schema.json").is_some());
         assert!(ProtocolBundle::conformance("manifest.json").is_some());
         assert!(ProtocolBundle::conformance("vectors/valid/mission.json").is_some());
+        assert!(ProtocolBundle::admission("manifest.json").is_some());
+        assert!(ProtocolBundle::admission("records/valid/command.json").is_some());
     }
 
     #[test]
@@ -570,7 +843,7 @@ mod tests {
         assert_eq!(pin.cryptography.path, "cryptography/manifest.json");
         assert_eq!(
             pin.cryptography.source_commit,
-            "27c9f5c80cdcc1bd2179aae6247426f59e833525"
+            "f7e70a72c76bbeb5014c186cd820aac2112f0dde"
         );
         assert_eq!(
             pin.cryptography.profile_id,
@@ -625,5 +898,76 @@ mod tests {
             .cryptography;
         pin.source_commit = "335aee85ba88934641822e1639e08efd2c9e29b6".into();
         assert!(validate_cryptography_pin(&pin).is_err());
+    }
+
+    #[test]
+    fn verifies_exact_embedded_admission_bundle() {
+        let summary = ProtocolBundle::verify_admission()
+            .expect("Admission bundle should match its independent pin");
+        assert_eq!(summary.artifact_count, 19);
+        assert_eq!(summary.case_count, 5);
+        assert_eq!(summary.evaluation_count, 30);
+        assert_eq!(
+            summary.cryptography_artifact_digest,
+            "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
+        );
+        assert_eq!(
+            summary.artifact_digest,
+            "sha256:39971bfafb68ef6c18f9026220cccc4f023fd4d5c8074f8ff0276cb1129cd0a0"
+        );
+
+        let pin = ProtocolBundle::pin().expect("pin should parse");
+        assert_eq!(pin.admission.path, "admission/manifest.json");
+        assert_eq!(
+            pin.admission.source_commit,
+            "f7e70a72c76bbeb5014c186cd820aac2112f0dde"
+        );
+        assert_eq!(
+            pin.admission.profile_id,
+            "missionweaveprotocol.first-admission-historical-trust.v0.1"
+        );
+
+        for path in ["records/valid/command.json", "manifest.json", "README.md"] {
+            assert!(
+                ProtocolBundle::admission(path).is_some(),
+                "embedded Admission resource {path} should be available"
+            );
+        }
+    }
+
+    #[test]
+    fn admission_artifact_paths_stay_within_pinned_roots() {
+        for path in [
+            "../schemas/first-admission-record.schema.json",
+            "/schemas/first-admission-record.schema.json",
+            "admission\\..\\PROTOCOL_PIN.json",
+            "cryptography/manifest.json",
+            "admission/README.md",
+            "admission/manifest.json",
+        ] {
+            assert!(
+                validate_admission_artifact_path(path).is_err(),
+                "artifact path {path} should be rejected"
+            );
+        }
+        for path in [
+            "schemas/first-admission-record.schema.json",
+            "admission/manifest.schema.json",
+            "admission/records/valid/command.json",
+            "admission/registries/registry-later-revocation.json",
+        ] {
+            assert!(
+                validate_admission_artifact_path(path).is_ok(),
+                "artifact path {path} should be accepted"
+            );
+        }
+        assert!(ProtocolBundle::admission("../PROTOCOL_PIN.json").is_none());
+    }
+
+    #[test]
+    fn admission_pin_rejects_published_identity_drift() {
+        let mut pin = ProtocolBundle::pin().expect("pin should parse").admission;
+        pin.source_commit = "335aee85ba88934641822e1639e08efd2c9e29b6".into();
+        assert!(validate_admission_pin(&pin).is_err());
     }
 }

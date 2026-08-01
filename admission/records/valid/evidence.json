@@ -1,0 +1,17 @@
+{
+  "protocolVersion": "0.1",
+  "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-evidence",
+  "organizationId": "urn:missionweaveprotocol:organization:acme",
+  "documentKind": "evidence",
+  "signingHash": "sha256:9caeb847c295014cfc99ee0ef63c28f85237c3bb040b66e1b529762d2197ca4a",
+  "keyId": "urn:missionweaveprotocol:key:crypto-vector-test-reviewer",
+  "principal": {
+    "type": "agent",
+    "id": "urn:missionweaveprotocol:agent:test-reviewer"
+  },
+  "trustedAcceptedAt": "2026-07-15T05:05:00Z",
+  "acceptedBy": {
+    "type": "service",
+    "id": "urn:missionweaveprotocol:service:admission"
+  }
+}

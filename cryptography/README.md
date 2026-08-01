@@ -49,6 +49,11 @@ historical-trust validation, Command freshness or clock-skew enforcement, or sig
 under applicable role and policy. Those checks remain separate normative requirements in the
 protocol specification.
 
+The independent [Admission bundle](../admission/README.md) exercises First-Admission Record and
+historical-replay behavior on top of an unchanged successful six-stage result. It does not add
+admission state to this cryptography profile or change any count, digest rule, or success meaning
+defined here.
+
 The `artifactDigest` in `manifest.json` binds the manifest's semantic content and every declared
 key, schema, canonicalization artifact, and signed-document vector. Implementations should pin a
 protocol release or commit together with this digest and run every declared evaluation without
