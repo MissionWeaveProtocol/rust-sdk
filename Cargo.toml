@@ -17,6 +17,7 @@ include = [
   "schemas/**",
   "conformance/**",
   "cryptography/**",
+  "admission/**",
   "PROTOCOL_PIN.json",
   "README*.md",
   "LICENSE",

@@ -1,0 +1,462 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://missionweaveprotocol.dev/admission/0.1/manifest.schema.json",
+  "title": "MissionWeaveProtocol 0.1 Admission Conformance Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "manifestVersion",
+    "protocolVersion",
+    "profileId",
+    "semanticStage",
+    "wireCode",
+    "cryptography",
+    "fixtureSchemas",
+    "artifactDigest",
+    "artifacts",
+    "cases"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://missionweaveprotocol.dev/admission/0.1/manifest.schema.json"
+    },
+    "manifestVersion": {
+      "const": 1
+    },
+    "protocolVersion": {
+      "const": "0.1"
+    },
+    "profileId": {
+      "const": "missionweaveprotocol.first-admission-historical-trust.v0.1"
+    },
+    "semanticStage": {
+      "const": "admission"
+    },
+    "wireCode": {
+      "const": "AUTH_INVALID_SIGNATURE"
+    },
+    "cryptography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest", "artifactDigest"],
+      "properties": {
+        "manifest": {
+          "const": "cryptography/manifest.json"
+        },
+        "artifactDigest": {
+          "const": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
+        }
+      }
+    },
+    "fixtureSchemas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record", "registry"],
+      "properties": {
+        "record": {
+          "const": "schemas/first-admission-record.schema.json"
+        },
+        "registry": {
+          "const": "cryptography/registry-fixture.schema.json"
+        }
+      }
+    },
+    "artifactDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 19,
+      "maxItems": 19,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    }
+  },
+  "$defs": {
+    "repositoryPath": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*$(?![\\s\\S])",
+      "maxLength": 512
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "absoluteId": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:",
+      "not": {
+        "pattern": "[^A-Za-z0-9._~:/?#\\[\\]@!$&'()*+,;=%-]"
+      },
+      "maxLength": 512
+    },
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "enum": ["agent", "human", "service"]
+        },
+        "id": {
+          "$ref": "#/$defs/absoluteId"
+        }
+      }
+    },
+    "trustedContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["admissionRecordId", "trustedAcceptedAt", "acceptedBy"],
+      "properties": {
+        "admissionRecordId": {
+          "$ref": "#/$defs/absoluteId"
+        },
+        "trustedAcceptedAt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "acceptedBy": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/principal"
+            },
+            {
+              "properties": {
+                "type": {
+                  "const": "service"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "lookupOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": [
+            "found",
+            "authoritative-absence",
+            "unauthenticated",
+            "integrity-failed",
+            "unavailable",
+            "indeterminate"
+          ]
+        },
+        "record": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "authenticatedService": {
+          "$ref": "#/$defs/principal"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "found"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["record", "authenticatedService"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "authoritative-absence",
+                  "unauthenticated",
+                  "integrity-failed",
+                  "unavailable",
+                  "indeterminate"
+                ]
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["record"]
+                },
+                {
+                  "required": ["authenticatedService"]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "appendOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": [
+            "committed",
+            "existing",
+            "conflict",
+            "unauthenticated",
+            "integrity-failed",
+            "unavailable",
+            "indeterminate"
+          ]
+        },
+        "record": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "authenticatedService": {
+          "$ref": "#/$defs/principal"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": ["committed", "existing"]
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["record", "authenticatedService"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "conflict",
+                  "unauthenticated",
+                  "integrity-failed",
+                  "unavailable",
+                  "indeterminate"
+                ]
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["record"]
+                },
+                {
+                  "required": ["authenticatedService"]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "completeExpectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "wireCode", "record"],
+      "properties": {
+        "stage": {
+          "const": "complete"
+        },
+        "wireCode": {
+          "type": "null"
+        },
+        "record": {
+          "$ref": "#/$defs/repositoryPath"
+        }
+      }
+    },
+    "rejectedExpectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "wireCode", "reason"],
+      "properties": {
+        "stage": {
+          "const": "admission"
+        },
+        "wireCode": {
+          "const": "AUTH_INVALID_SIGNATURE"
+        },
+        "reason": {
+          "enum": [
+            "record-missing",
+            "record-binding-mismatch",
+            "trusted-time-outside-key-interval",
+            "malformed-trusted-time",
+            "record-conflict",
+            "record-schema-invalid",
+            "log-authentication-failed",
+            "append-integrity-not-established",
+            "log-unavailable",
+            "log-indeterminate",
+            "commit-failed",
+            "event-self-anchoring"
+          ]
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "profileId",
+        "mode",
+        "document",
+        "registry",
+        "trustedContext",
+        "lookup",
+        "append",
+        "expect"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 160
+        },
+        "profileId": {
+          "enum": [
+            "agent-card",
+            "approval",
+            "artifact",
+            "command",
+            "context-package",
+            "event",
+            "evidence",
+            "extension-profile",
+            "group-snapshot"
+          ]
+        },
+        "mode": {
+          "enum": ["first-admission", "historical-replay"]
+        },
+        "document": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "registry": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "trustedContext": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/trustedContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lookup": {
+          "$ref": "#/$defs/lookupOutcome"
+        },
+        "append": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/appendOutcome"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expect": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/completeExpectation"
+            },
+            {
+              "$ref": "#/$defs/rejectedExpectation"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "historical-replay"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "trustedContext": {
+                "type": "null"
+              },
+              "append": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "byteLength", "sha256"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "evaluations"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 160
+        },
+        "evaluations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 18,
+          "items": {
+            "$ref": "#/$defs/evaluation"
+          }
+        }
+      }
+    }
+  }
+}

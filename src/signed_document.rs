@@ -43,6 +43,24 @@ pub enum SignedDocumentKind {
     GroupSnapshot,
 }
 
+impl SignedDocumentKind {
+    /// Return the stable protocol profile identifier.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::AgentCard => "agent-card",
+            Self::Approval => "approval",
+            Self::Artifact => "artifact",
+            Self::Command => "command",
+            Self::ContextPackage => "context-package",
+            Self::Event => "event",
+            Self::Evidence => "evidence",
+            Self::ExtensionProfile => "extension-profile",
+            Self::GroupSnapshot => "group-snapshot",
+        }
+    }
+}
+
 /// Boxed application-adapter failure.
 pub type AdapterError = Box<dyn StdError + Send + Sync + 'static>;
 
@@ -314,6 +332,13 @@ pub trait KeyResolver {
 }
 
 impl Principal {
+    pub(crate) fn from_parts(kind: PrincipalKind, id: impl Into<String>) -> Self {
+        Self {
+            kind,
+            id: id.into(),
+        }
+    }
+
     /// Principal type.
     #[must_use]
     pub const fn kind(&self) -> PrincipalKind {
@@ -1947,7 +1972,7 @@ fn strict_ed25519_point(
     Ok(())
 }
 
-fn parse_rfc3339(value: &str) -> Result<Rfc3339Instant, &'static str> {
+pub(crate) fn parse_rfc3339(value: &str) -> Result<Rfc3339Instant, &'static str> {
     let bytes = value.as_bytes();
     if bytes.len() < 20
         || bytes.get(4) != Some(&b'-')

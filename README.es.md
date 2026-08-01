@@ -8,11 +8,11 @@ SDK oficial de protocolo en Rust para
 [MissionWeaveProtocol](https://github.com/missionweaveprotocol/missionweaveprotocol).
 Incluye análisis JSON estricto, el paquete de protocolo fijado exactamente, validación Draft
 2020-12 sin red, el ejecutor completo de conformidad de esquemas, JSON canónico RFC 8785,
-identificadores SHA-256, utilidades Ed25519, `SignedDocumentCodec` para los nueve perfiles
-explícitos y un FrameCodec con validación de esquemas.
+identificadores SHA-256, utilidades Ed25519, `SignedDocumentCodec` para los nueve perfiles,
+`AdmissionService` y un FrameCodec con validación de esquemas.
 
-> La versión actual demuestra **conformidad con esquemas y vectores criptográficos de documentos
-> firmados**. Todavía no afirma
+> La versión actual demuestra **conformidad con esquemas y vectores criptográficos y de Admission**.
+> Todavía no afirma
 > implementar el Core autoritativo, el entorno de ejecución de Worker, el planificador, el almacenamiento ni el
 > cliente WebSocket de la implementación de referencia en Python.
 
@@ -28,9 +28,11 @@ explícitos y un FrameCodec con validación de esquemas.
 | `0.1.x` | `0.1` |
 
 [`PROTOCOL_PIN.json`](PROTOCOL_PIN.json) fija el SDK al commit
-[`27c9f5c80cdcc1bd2179aae6247426f59e833525`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/27c9f5c80cdcc1bd2179aae6247426f59e833525),
-21 esquemas, 56 vectores de conformidad y el [contrato criptográfico incluido](cryptography/README.md)
-con 62 evaluaciones. Las versiones del SDK y del protocolo son independientes.
+[`f7e70a72c76bbeb5014c186cd820aac2112f0dde`](https://github.com/missionweaveprotocol/missionweaveprotocol/commit/f7e70a72c76bbeb5014c186cd820aac2112f0dde),
+22 esquemas, 58 vectores de conformidad, el [contrato criptográfico incluido](cryptography/README.md)
+con 62 evaluaciones y el [contrato de Admission incluido](admission/README.md) con 30 evaluaciones
+(12 completas y 18 rechazadas). El resumen de Admission es
+`sha256:39971bfafb68ef6c18f9026220cccc4f023fd4d5c8074f8ff0276cb1129cd0a0`.
 
 ## Uso
 
@@ -108,13 +110,46 @@ match codec.verify(SignedDocumentKind::Command, &received, &registry_resolver) {
 ```
 
 El tipo de documento siempre se indica explícitamente; el codec no infiere ninguno de los nueve
-perfiles. `SigningKey` y `KeyResolver` son los únicos adaptadores de aplicación. El resolver debe
+perfiles. `SigningKey` y `KeyResolver` son los adaptadores criptográficos. El resolver debe
 devolver un snapshot declarado explícitamente como `OrganizationWide`; la evidencia parcial o sin
 completitud declarada falla de forma cerrada en la resolución de claves. El resultado verificado
 conserva de forma inmutable el documento analizado y los bytes recibidos, los bytes/hash JCS de la
 entrada firmada y del documento completo, el tiempo protegido exacto y analizado, la firma y la
-evidencia del Agent Registry resuelto. First-Admission Record, vigencia y autorización son comprobaciones
-separadas. Consulta el ejemplo ejecutable [`sign_document`](examples/sign_document.rs).
+evidencia del Agent Registry resuelto. Admission permanece como una capa separada sobre este
+verificador sin cambios. Consulta el ejemplo ejecutable [`sign_document`](examples/sign_document.rs).
+
+## Primera admisión y confianza histórica
+
+`AdmissionService::admit_first` vuelve a ejecutar las seis etapas de verificación de Signed Document
+con evidencia Registry actual antes de consultar un Admission Log autenticado y de solo anexado.
+`verify_historical_admission` usa el historial conservado del Registry, exige un registro existente
+validado y nunca anexa. `AdmissionCurrentKeyResolver::resolve_current` es el límite explícito de
+confianza para una nueva admisión; la reproducción histórica sigue usando `KeyResolver`.
+
+```rust
+use missionweaveprotocol::{AdmissionService, SignedDocumentKind};
+
+let service = AdmissionService::new()?;
+let admitted = service.admit_first(
+    SignedDocumentKind::Command,
+    command_bytes,
+    &current_registry,
+    &admission_log,
+    &trusted_context,
+)?;
+let replayed = service.verify_historical_admission(
+    SignedDocumentKind::Command,
+    command_bytes,
+    &historical_registry,
+    &admission_log,
+)?;
+assert_eq!(admitted.record().signing_hash(), replayed.record().signing_hash());
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Cada rechazo de Admission usa `AUTH_INVALID_SIGNATURE`, la etapa protegida `admission` y un
+`AdmissionReason` estable. `AdmissionOperationError` separa los errores de verificación en seis
+etapas de los errores de Admission.
 
 ## Ejecutar la conformidad de esquemas
 
@@ -125,26 +160,28 @@ cargo run --locked --bin missionweaveprotocol-conformance
 Resultado esperado:
 
 ```text
-56/56 conformance vectors passed
+58/58 conformance vectors passed
 ```
 
-Los 56 vectores solo demuestran el comportamiento estructural de los esquemas. La conformidad
+Los 58 vectores solo demuestran el comportamiento estructural de los esquemas. La conformidad
 completa con el protocolo también requiere las máquinas de estado normativas, controles de
 autoridad, fencing que invalida las autoridades obsoletas, presupuestos, orden, prevención de
 repeticiones, recuperación de entregas y reglas de aprobación humana.
 
 ## Superficie pública
 
-- `ProtocolBundle`: pin integrado, recursos de esquemas y vectores, y verificación exacta de los
-  resúmenes, byte a byte.
+- `ProtocolBundle`: pin integrado, recursos de esquemas, vectores, criptografía y Admission, y
+  verificación exacta de los resúmenes, byte a byte.
 - `parse_strict_json`: análisis UTF-8 que rechaza miembros duplicados y datos sobrantes.
 - `SchemaCatalog`: registro `$id` offline de Draft 2020-12 con aserciones de formato.
-- `ConformanceRunner`: los 26 vectores válidos y 30 inválidos canónicos.
+- `ConformanceRunner`: los 27 vectores válidos y 31 inválidos canónicos.
 - `canonical_bytes` / `canonical_sha256`: RFC 8785 e identificadores de contenido `sha256:`.
 - `Ed25519Signer`: firmas sin procesar y reglas de omisión de `signature` en el nivel superior.
 - `SignedDocumentCodec`: firma explícita de nueve perfiles y verificación en seis etapas con
   evidencia completa e inmutable y errores wire que no revelan el punto de fallo.
-- `SigningKey` / `KeyResolver`: los únicos adaptadores de aplicación; la resolución exige un
+- `AdmissionService`: primera admisión, reproducción histórica, validación estricta del registro y
+  las 30 evaluaciones de Admission mediante adaptadores tipados.
+- `SigningKey` / `KeyResolver`: adaptadores criptográficos; la resolución exige un
   `KeyRegistrySnapshot` completo para toda la organización.
 - `FrameCodec`: decodificación estricta y codificación canónica sobre el esquema normativo de tramas.
 
@@ -161,8 +198,8 @@ cargo run --locked --quiet --bin missionweaveprotocol-conformance
 cargo package --locked
 ```
 
-El crate incluye los esquemas y vectores de conformidad fijados, por lo que la validación y la CLI
-funcionan sin acceso a la red durante la ejecución.
+El crate incluye los esquemas, vectores de conformidad y bundles de criptografía y Admission, por
+lo que la validación, Admission y la CLI funcionan sin acceso a la red durante la ejecución.
 
 ## Seguridad
 

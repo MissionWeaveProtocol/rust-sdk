@@ -1,23 +1,23 @@
 {
   "repository": "https://github.com/missionweaveprotocol/missionweaveprotocol",
-  "commit": "27c9f5c80cdcc1bd2179aae6247426f59e833525",
+  "commit": "f7e70a72c76bbeb5014c186cd820aac2112f0dde",
   "protocolVersion": "0.1",
   "wireNamespace": "missionweaveprotocol",
   "artifacts": {
     "schemas": {
       "path": "schemas",
-      "files": 21,
-      "sha256": "de90adb6a84995ce6e7e35f20c58f74293546ad2aca61796429c8b1d8d269c42"
+      "files": 22,
+      "sha256": "941a5a19b8664207f1ff48b799219c2f981ecd491a5cca527d586028d976ec76"
     },
     "conformance": {
       "path": "conformance",
-      "files": 57,
-      "sha256": "fc7d6b2005b4cdebcb9d47efd0a3ce991fea111776c4271beaf8945e11b5d7df"
+      "files": 59,
+      "sha256": "2362acd8345e5860e605ed06984f1673a1ea0a00e76c1fe00fed222326782f24"
     }
   },
   "cryptography": {
     "path": "cryptography/manifest.json",
-    "sourceCommit": "27c9f5c80cdcc1bd2179aae6247426f59e833525",
+    "sourceCommit": "f7e70a72c76bbeb5014c186cd820aac2112f0dde",
     "profileId": "missionweaveprotocol.signed-document-verification.v0.1",
     "manifestVersion": 1,
     "artifactDigest": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3",
@@ -25,5 +25,16 @@
     "caseCount": 22,
     "evaluationCount": 62
   },
-  "bundleSha256": "eed30aeb0a6d39575b6ab2f3121de27cef34d27dd9659ee4e5a7204ec5deeea7"
+  "admission": {
+    "path": "admission/manifest.json",
+    "sourceCommit": "f7e70a72c76bbeb5014c186cd820aac2112f0dde",
+    "profileId": "missionweaveprotocol.first-admission-historical-trust.v0.1",
+    "manifestVersion": 1,
+    "cryptographyArtifactDigest": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3",
+    "artifactDigest": "sha256:39971bfafb68ef6c18f9026220cccc4f023fd4d5c8074f8ff0276cb1129cd0a0",
+    "artifactCount": 19,
+    "caseCount": 5,
+    "evaluationCount": 30
+  },
+  "bundleSha256": "c95fc8f8334947dacf51a2c6e84d9b13f5b39b7d3827591569a1e2c5acfe47d7"
 }

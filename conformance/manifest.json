@@ -334,5 +334,17 @@
     "schema": "schemas/group-snapshot.schema.json",
     "instance": "conformance/vectors/invalid/group-snapshot-without-policy-log.json",
     "valid": false
+  },
+  {
+    "name": "valid First-Admission Record",
+    "schema": "schemas/first-admission-record.schema.json",
+    "instance": "conformance/vectors/valid/first-admission-record.json",
+    "valid": true
+  },
+  {
+    "name": "First-Admission Record cannot contain a signature",
+    "schema": "schemas/first-admission-record.schema.json",
+    "instance": "conformance/vectors/invalid/first-admission-record-with-signature.json",
+    "valid": false
   }
 ]

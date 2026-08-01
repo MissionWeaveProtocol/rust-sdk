@@ -1,0 +1,887 @@
+{
+  "$schema": "https://missionweaveprotocol.dev/admission/0.1/manifest.schema.json",
+  "manifestVersion": 1,
+  "protocolVersion": "0.1",
+  "profileId": "missionweaveprotocol.first-admission-historical-trust.v0.1",
+  "semanticStage": "admission",
+  "wireCode": "AUTH_INVALID_SIGNATURE",
+  "cryptography": {
+    "manifest": "cryptography/manifest.json",
+    "artifactDigest": "sha256:5eade516e4bc5dcf04477727ebcccd11f33348b2d9135fb6fe0365c6e6cc2ea3"
+  },
+  "fixtureSchemas": {
+    "record": "schemas/first-admission-record.schema.json",
+    "registry": "cryptography/registry-fixture.schema.json"
+  },
+  "artifacts": [
+    {
+      "path": "admission/manifest.schema.json",
+      "byteLength": 10926,
+      "sha256": "sha256:75eaf0c01a713edf166d00dc87e331b4004d9da8324efd61f412f88a0644046e"
+    },
+    {
+      "path": "admission/records/invalid/accepted-by-non-service.json",
+      "byteLength": 631,
+      "sha256": "sha256:739f63f03596313f0a80c5e9f99ce48757088d0935cf63f7d740c23781d3e43c"
+    },
+    {
+      "path": "admission/records/invalid/document-kind-mismatch.json",
+      "byteLength": 633,
+      "sha256": "sha256:2eaefbc0f5673e755189e24d67534b003db457717fba3e3607a21cd0853163fe"
+    },
+    {
+      "path": "admission/records/invalid/key-id-mismatch.json",
+      "byteLength": 617,
+      "sha256": "sha256:03793f1f9b69599f74d29c7f7104b4f2604e34a23c46896df770fbcd854c1f68"
+    },
+    {
+      "path": "admission/records/invalid/organization-mismatch.json",
+      "byteLength": 636,
+      "sha256": "sha256:e3a3351658a53639cb5d4025847f922f4f36ad7d80416ac685e57717689c131a"
+    },
+    {
+      "path": "admission/records/invalid/principal-mismatch.json",
+      "byteLength": 615,
+      "sha256": "sha256:09e69ba0941b755ae0cdfddeb0eb023d5b79ede4b9d48c5f4642c25304b3aaa0"
+    },
+    {
+      "path": "admission/records/invalid/signing-hash-mismatch.json",
+      "byteLength": 635,
+      "sha256": "sha256:405f30fbe86f6731700531a84d6eba1c892afb0414bb382e4ca37a995d8765d4"
+    },
+    {
+      "path": "admission/records/valid/agent-card.json",
+      "byteLength": 653,
+      "sha256": "sha256:c4e19cf6366afb75c64be720f8a821e30b33e00f1253df6ad0996b14efc0a047"
+    },
+    {
+      "path": "admission/records/valid/approval.json",
+      "byteLength": 629,
+      "sha256": "sha256:bb75e14b43089325e445c032a34728017b91265733728acda285adda719291d2"
+    },
+    {
+      "path": "admission/records/valid/artifact.json",
+      "byteLength": 629,
+      "sha256": "sha256:6ff9776a26368fdf093db35d61667e0fe7e793ec229d36238d74f5a5ed20052e"
+    },
+    {
+      "path": "admission/records/valid/command.json",
+      "byteLength": 635,
+      "sha256": "sha256:e97ff79bb56c91d1cda2d7ee61d375c7a39505697388df30e5b19d7e9ec2ec4f"
+    },
+    {
+      "path": "admission/records/valid/context-package.json",
+      "byteLength": 651,
+      "sha256": "sha256:7c5010b669f2a0229c6dece125dd9e0b35cd63224f2a6cf931cebf99e4a94912"
+    },
+    {
+      "path": "admission/records/valid/event.json",
+      "byteLength": 631,
+      "sha256": "sha256:5aea42edeacf792ac809445b765a236c0615e3da65a1268a7cf226191a86a763"
+    },
+    {
+      "path": "admission/records/valid/evidence.json",
+      "byteLength": 629,
+      "sha256": "sha256:fc72f75dcfc5d55dd96dd01ce193c98ddbfb9b0c577df34ea2bd1de1bf4597e1"
+    },
+    {
+      "path": "admission/records/valid/extension-profile.json",
+      "byteLength": 649,
+      "sha256": "sha256:d57fbd1005d2141508e111b51efb69f293cf6ae13593189d37f2ce3c2c7cd2e2"
+    },
+    {
+      "path": "admission/records/valid/group-snapshot.json",
+      "byteLength": 649,
+      "sha256": "sha256:f0243826bd0da20259ab8beba4af9a85fccf1ac1486fb9c92fb324aa4fca91a5"
+    },
+    {
+      "path": "admission/registries/registry-later-revocation.json",
+      "byteLength": 3016,
+      "sha256": "sha256:88e725fd19a5a4690f1ced9487b4637a12f602135eb10f74b16bda66981ba5b0"
+    },
+    {
+      "path": "schemas/common.schema.json",
+      "byteLength": 6844,
+      "sha256": "sha256:1907e469ef3540a0f19e88c5eab2fdc5c4c0e52b2ca664ce94cfa5e2191b0853"
+    },
+    {
+      "path": "schemas/first-admission-record.schema.json",
+      "byteLength": 1548,
+      "sha256": "sha256:7b03ec69ca94d6b95d134cf327de564cdea8d32fda38c3285c37b6914ad46e6e"
+    }
+  ],
+  "cases": [
+    {
+      "id": "accept.first-admission.idempotent-retry",
+      "evaluations": [
+        {
+          "id": "first-admission.idempotent-retry",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/valid/command.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/command.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accept.first-admission.profile-matrix",
+      "evaluations": [
+        {
+          "id": "first-admission.agent-card",
+          "profileId": "agent-card",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/agent-card.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-agent-card",
+            "trustedAcceptedAt": "2026-07-01T00:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/agent-card.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/agent-card.json"
+          }
+        },
+        {
+          "id": "first-admission.approval",
+          "profileId": "approval",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/approval.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-approval",
+            "trustedAcceptedAt": "2026-07-15T04:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/approval.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/approval.json"
+          }
+        },
+        {
+          "id": "first-admission.artifact",
+          "profileId": "artifact",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/artifact.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-artifact",
+            "trustedAcceptedAt": "2026-07-15T02:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/artifact.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/artifact.json"
+          }
+        },
+        {
+          "id": "first-admission.command",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-15T00:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/command.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/command.json"
+          }
+        },
+        {
+          "id": "first-admission.context-package",
+          "profileId": "context-package",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/context-package.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-context-package",
+            "trustedAcceptedAt": "2026-07-15T01:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/context-package.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/context-package.json"
+          }
+        },
+        {
+          "id": "first-admission.event",
+          "profileId": "event",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/event.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-event",
+            "trustedAcceptedAt": "2026-07-15T03:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/event.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/event.json"
+          }
+        },
+        {
+          "id": "first-admission.evidence",
+          "profileId": "evidence",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/evidence.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-evidence",
+            "trustedAcceptedAt": "2026-07-15T05:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/evidence.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/evidence.json"
+          }
+        },
+        {
+          "id": "first-admission.extension-profile",
+          "profileId": "extension-profile",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/extension-profile.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-extension-profile",
+            "trustedAcceptedAt": "2026-07-15T06:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/extension-profile.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/extension-profile.json"
+          }
+        },
+        {
+          "id": "first-admission.group-snapshot",
+          "profileId": "group-snapshot",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/group-snapshot.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-group-snapshot",
+            "trustedAcceptedAt": "2026-07-15T07:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "committed",
+            "record": "admission/records/valid/group-snapshot.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/group-snapshot.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accept.historical-replay.later-expiry",
+      "evaluations": [
+        {
+          "id": "historical-replay.later-expiry",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/valid/command.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/command.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accept.historical-replay.later-revocation",
+      "evaluations": [
+        {
+          "id": "historical-replay.later-revocation",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "admission/registries/registry-later-revocation.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/valid/command.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "complete",
+            "wireCode": null,
+            "record": "admission/records/valid/command.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "reject.admission.failure-matrix",
+      "evaluations": [
+        {
+          "id": "historical-record-missing",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-missing"
+          }
+        },
+        {
+          "id": "signing-hash-mismatch",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/signing-hash-mismatch.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-binding-mismatch"
+          }
+        },
+        {
+          "id": "key-id-mismatch",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/key-id-mismatch.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-binding-mismatch"
+          }
+        },
+        {
+          "id": "principal-mismatch",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/principal-mismatch.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-binding-mismatch"
+          }
+        },
+        {
+          "id": "organization-mismatch",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/organization-mismatch.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-binding-mismatch"
+          }
+        },
+        {
+          "id": "document-kind-mismatch",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/document-kind-mismatch.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-binding-mismatch"
+          }
+        },
+        {
+          "id": "trusted-time-before-valid-from",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-14T23:59:59Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "trusted-time-outside-key-interval"
+          }
+        },
+        {
+          "id": "trusted-time-equal-valid-until",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-16T00:00:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "trusted-time-outside-key-interval"
+          }
+        },
+        {
+          "id": "trusted-time-after-valid-until",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-16T00:00:01Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "trusted-time-outside-key-interval"
+          }
+        },
+        {
+          "id": "trusted-time-equal-revoked-at",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "admission/registries/registry-later-revocation.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-15T01:00:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "trusted-time-outside-key-interval"
+          }
+        },
+        {
+          "id": "trusted-time-after-revoked-at",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "admission/registries/registry-later-revocation.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-15T01:00:01Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "trusted-time-outside-key-interval"
+          }
+        },
+        {
+          "id": "malformed-trusted-time",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "not-a-timestamp",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "malformed-trusted-time"
+          }
+        },
+        {
+          "id": "conflicting-record",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-15T00:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "conflict"
+          },
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-conflict"
+          }
+        },
+        {
+          "id": "accepted-by-non-service",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "admission/records/invalid/accepted-by-non-service.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "record-schema-invalid"
+          }
+        },
+        {
+          "id": "accepting-service-not-authenticated",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "unauthenticated"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "log-authentication-failed"
+          }
+        },
+        {
+          "id": "append-integrity-not-established",
+          "profileId": "command",
+          "mode": "first-admission",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": {
+            "admissionRecordId": "urn:missionweaveprotocol:admission-record:crypto-vector-command",
+            "trustedAcceptedAt": "2026-07-15T00:05:00Z",
+            "acceptedBy": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "lookup": {
+            "status": "authoritative-absence"
+          },
+          "append": {
+            "status": "integrity-failed"
+          },
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "append-integrity-not-established"
+          }
+        },
+        {
+          "id": "admission-log-indeterminate",
+          "profileId": "command",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/command.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "indeterminate"
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "log-indeterminate"
+          }
+        },
+        {
+          "id": "event-self-anchoring",
+          "profileId": "event",
+          "mode": "historical-replay",
+          "document": "cryptography/vectors/signed-documents/valid/event.json",
+          "registry": "cryptography/keys/registry-valid.json",
+          "trustedContext": null,
+          "lookup": {
+            "status": "found",
+            "record": "cryptography/vectors/signed-documents/valid/event.json",
+            "authenticatedService": {
+              "type": "service",
+              "id": "urn:missionweaveprotocol:service:admission"
+            }
+          },
+          "append": null,
+          "expect": {
+            "stage": "admission",
+            "wireCode": "AUTH_INVALID_SIGNATURE",
+            "reason": "event-self-anchoring"
+          }
+        }
+      ]
+    }
+  ],
+  "artifactDigest": "sha256:39971bfafb68ef6c18f9026220cccc4f023fd4d5c8074f8ff0276cb1129cd0a0"
+}

@@ -1,5 +1,6 @@
 //! Official Rust SDK for `MissionWeaveProtocol`.
 
+mod admission;
 mod bundle;
 mod canonical;
 mod conformance;
@@ -8,9 +9,15 @@ mod schema;
 mod signed_document;
 mod strict_json;
 
+pub use admission::{
+    AdmissionAdapterError, AdmissionContextValue, AdmissionCurrentKeyResolver, AdmissionDiagnostic,
+    AdmissionError, AdmissionLog, AdmissionLookup, AdmissionOperationError, AdmissionReason,
+    AdmissionService, AdmittedSignedDocument, AuthenticatedAdmissionRecord, FirstAdmissionRecord,
+    PreparedFirstAdmission, TrustedAdmissionContext,
+};
 pub use bundle::{
-    BundleError, BundleSummary, CryptographyBundleSummary, CryptographyPin, ProtocolBundle,
-    ProtocolPin,
+    AdmissionBundleSummary, AdmissionPin, BundleError, BundleSummary, CryptographyBundleSummary,
+    CryptographyPin, ProtocolBundle, ProtocolPin,
 };
 pub use canonical::{
     CanonicalError, Ed25519Signer, canonical_bytes, canonical_sha256, signature_input,

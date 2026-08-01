@@ -172,14 +172,14 @@ mod tests {
             .run()
             .expect("manifest");
         assert!(report.passed(), "{}", report.summary());
-        assert_eq!(report.results.len(), 56);
+        assert_eq!(report.results.len(), 58);
         assert_eq!(
             report
                 .results
                 .iter()
                 .filter(|result| result.expected_valid)
                 .count(),
-            26
+            27
         );
     }
 }
